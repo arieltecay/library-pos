@@ -121,21 +121,21 @@ export default function POSPage() {
     }
   };
 
-  const handleCreateClient = async () => {
-    if (newClient.fullName.trim().length < 2) {
+  const handleCreateClient = async (data: { fullName: string; dni: string; phone?: string }) => {
+    if (!data.fullName.trim() || data.fullName.trim().length < 2) {
       showError("Ingrese el nombre del cliente");
       return;
     }
-    if (!newClient.dni.trim()) {
+    if (!data.dni.trim()) {
       showError("Ingrese el DNI del cliente");
       return;
     }
     setSavingClient(true);
     try {
       const client = await createClient({
-        fullName: newClient.fullName.trim(),
-        dni: newClient.dni.trim(),
-        phone: newClient.phone.trim() || undefined,
+        fullName: data.fullName.trim(),
+        dni: data.dni.trim(),
+        phone: data.phone?.trim() || undefined,
       });
       setSelectedClient(client);
       setShowNewClient(false);
