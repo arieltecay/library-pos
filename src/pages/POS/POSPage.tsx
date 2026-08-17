@@ -32,7 +32,7 @@ export default function POSPage() {
 
   // Hooks
   const { products, loading: productsLoading, refetch: refetchProducts } = useProducts(100);
-  const { activeShift, shiftStats, openShift, closeShift, loading: shiftLoading } = useShift();
+  const { activeShift, shiftStats, openShift, closeShift, loading: shiftLoading, refetch } = useShift();
   const { cart, addToCart, updateQuantity, removeItem, clearCart, subtotal, itemCount } = useCart(products);
   const { checkout, loading: saleLoading } = useSale();
   const { createClient, loading: clientLoading } = useClient();
@@ -175,6 +175,7 @@ export default function POSPage() {
       setSaleSuccess({ total: saleTotal, change: saleChange });
       clearCart();
       refetchProducts();
+      refetch(); // Actualizar estado del turno en tiempo real
       success("Venta procesada correctamente");
     } catch (err: any) {
       showError(err.message || "Error al procesar la venta");
@@ -219,8 +220,8 @@ export default function POSPage() {
     isLoading: loading,
   });
 
-  // Early return if no active shift
-  if (!activeShift && !showOpenShift) {
+  // Early return if no active shift (and not loading)
+  if (!activeShift && !showOpenShift && !loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="text-center">
