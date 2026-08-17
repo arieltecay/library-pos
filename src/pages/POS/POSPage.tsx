@@ -90,9 +90,8 @@ export default function POSPage() {
   const loading = saleLoading || clientLoading || savingClient;
 
   // Handlers
-  const handleOpenShift = async () => {
+  const handleOpenShift = async (amount: number) => {
     try {
-      const amount = parseFloat(openingAmount);
       if (isNaN(amount) || amount <= 0) {
         showError("Debe ingresar un monto inicial mayor a 0");
         return;
