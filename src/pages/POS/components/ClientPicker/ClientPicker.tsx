@@ -11,6 +11,7 @@ export function ClientPicker({ selected, onSelect, onNewClient }: ClientPickerPr
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Debounce search
   useEffect(() => {
@@ -58,6 +59,8 @@ export function ClientPicker({ selected, onSelect, onNewClient }: ClientPickerPr
 
   const handleFocus = () => {
     setShowResults(true);
+    // Focus the search input when dropdown opens
+    setTimeout(() => searchInputRef.current?.focus(), 0);
   };
 
   const handleBlur = () => {
@@ -66,7 +69,6 @@ export function ClientPicker({ selected, onSelect, onNewClient }: ClientPickerPr
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
-    setShowResults(true);
   };
 
   const displayName = selected
@@ -111,6 +113,19 @@ export function ClientPicker({ selected, onSelect, onNewClient }: ClientPickerPr
 
       {showResults && (
         <div className="absolute top-full mt-2 left-0 right-0 bg-white rounded-xl shadow-xl border border-neutral-200 z-40 overflow-hidden max-h-96">
+          {/* Search input inside dropdown */}
+          <div className="p-2 border-b border-neutral-100">
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={search}
+              onChange={handleSearchChange}
+              placeholder="Buscar por nombre, DNI o teléfono..."
+              className="w-full px-3 py-2 text-sm rounded-lg border border-neutral-200 focus:border-primary-500 focus:outline-none"
+              autoComplete="off"
+            />
+          </div>
+          
           <button
             onClick={handleSelectDefault}
             className="w-full text-left px-4 py-2.5 hover:bg-primary-50 text-sm border-b border-neutral-100 flex items-center justify-between gap-3"
