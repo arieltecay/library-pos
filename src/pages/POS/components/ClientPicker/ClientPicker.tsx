@@ -1,26 +1,45 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useClient } from "../../hooks/useClient";
 import type { Client, ClientPickerProps } from "./types";
 
 export function ClientPicker({ selected, onSelect, onNewClient }: ClientPickerProps) {
+  const { searchClients, loading: apiLoading } = useClient();
   const [search, setSearch] = useState("");
   const [showResults, setShowResults] = useState(false);
+  const [results, setResults] = useState<Client[]>([]);
+  const [resultsLoading, setResultsLoading] = useState(false);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  // Mock client search - in real app this would call an API
-  const mockClients = [
-    { id: "1", fullName: "María González", dni: "30123456", phone: "3415551234", balance: 0, isDefault: false, active: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-    { id: "2", fullName: "Carlos Rodríguez", dni: "28765432", phone: "3415555678", balance: 15000, isDefault: false, active: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-    { id: "3", fullName: "Ana Martínez", dni: "32109876", phone: "3415559012", balance: 0, isDefault: false, active: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  ];
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
-  const filteredClients = mockClients
-    .filter((c) =>
-      c.fullName.toLowerCase().includes(search.toLowerCase()) ||
-      c.dni.includes(search) ||
-      c.phone?.includes(search)
-    )
-    .slice(0, 5);
+  // Fetch results when debounced search changes
+  useEffect(() => {
+    if (!debouncedSearch.trim()) {
+      setResults([]);
+      return;
+    }
+    let cancelled = false;
+    setResultsLoading(true);
+    searchClients(debouncedSearch)
+      .then((clients) => {
+        if (!cancelled) setResults(clients);
+      })
+      .catch(() => {
+        if (!cancelled) setResults([]);
+      })
+      .finally(() => {
+        if (!cancelled) setResultsLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [debouncedSearch, searchClients]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -45,9 +64,25 @@ export function ClientPicker({ selected, onSelect, onNewClient }: ClientPickerPr
     setTimeout(() => setShowResults(false), 200);
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+    setShowResults(true);
+  };
+
   const displayName = selected
     ? `${selected.fullName} (${selected.dni})${selected.balance > 0 ? ` · Deuda: $${selected.balance.toLocaleString("es-AR")}` : ""}`
     : "Cliente General";
+
+  const handleSelectDefault = () => {
+    onSelect({ id: "default", fullName: "Cliente General", dni: "0", isDefault: true, balance: 0, active: true, createdAt: "", updatedAt: "" });
+    setShowResults(false);
+  };
+
+  const handleSelectClient = (client: Client) => {
+    onSelect(client);
+    setShowResults(false);
+    setSearch("");
+  };
 
   return (
     <div className="flex-1 relative" ref={resultsRef}>
@@ -57,9 +92,9 @@ export function ClientPicker({ selected, onSelect, onNewClient }: ClientPickerPr
           type="text"
           readOnly
           value={displayName}
-          onClick={() => setShowResults(true)}
-          onFocus={() => setShowResults(true)}
-          onBlur={() => setTimeout(() => setShowResults(false), 200)}
+          onClick={handleFocus}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm focus:border-primary-500 focus:outline-none cursor-pointer"
           placeholder="Seleccionar cliente..."
         />
@@ -75,38 +110,44 @@ export function ClientPicker({ selected, onSelect, onNewClient }: ClientPickerPr
       </div>
 
       {showResults && (
-        <div className="absolute top-full mt-2 left-0 right-0 bg-white rounded-xl shadow-xl border border-neutral-200 z-40 overflow-hidden">
+        <div className="absolute top-full mt-2 left-0 right-0 bg-white rounded-xl shadow-xl border border-neutral-200 z-40 overflow-hidden max-h-96">
           <button
-            onClick={() => {
-              onSelect({ id: "default", fullName: "Cliente General", dni: "0", isDefault: true, balance: 0, active: true, createdAt: "", updatedAt: "" });
-              setShowResults(false);
-            }}
+            onClick={handleSelectDefault}
             className="w-full text-left px-4 py-2.5 hover:bg-primary-50 text-sm border-b border-neutral-100 flex items-center justify-between gap-3"
           >
             <span className="font-medium text-neutral-900">Cliente General</span>
             <span className="text-xs text-primary-600 font-medium">Predeterminado</span>
           </button>
-          {filteredClients.map((client) => (
-            <button
-              key={client.id}
-              onClick={() => {
-                onSelect(client);
-                setShowResults(false);
-              }}
-              className="w-full text-left px-4 py-2.5 hover:bg-primary-50 text-sm border-b border-neutral-100 last:border-0 flex items-center justify-between gap-3"
-            >
-              <span className="font-medium text-neutral-900">{client.fullName}</span>
-              <span className="flex items-center gap-3 shrink-0">
-                <span className="text-xs text-neutral-400">{client.dni}</span>
-                {client.balance > 0 && (
-                  <span className="text-xs text-warning-600 font-medium">Deuda: ${client.balance.toLocaleString("es-AR")}</span>
-                )}
-              </span>
-            </button>
-          ))}
+          
+          {resultsLoading ? (
+            <div className="px-4 py-4 text-center text-neutral-500 text-sm">
+              Buscando clientes...
+            </div>
+          ) : results.length === 0 && debouncedSearch.trim() ? (
+            <div className="px-4 py-4 text-center text-neutral-500 text-sm">
+              No se encontraron clientes
+            </div>
+          ) : (
+            results.map((client) => (
+              <button
+                key={client.id}
+                onClick={() => handleSelectClient(client)}
+                className="w-full text-left px-4 py-2.5 hover:bg-primary-50 text-sm border-b border-neutral-100 last:border-0 flex items-center justify-between gap-3"
+              >
+                <span className="font-medium text-neutral-900">{client.fullName}</span>
+                <span className="flex items-center gap-3 shrink-0">
+                  <span className="text-xs text-neutral-400">{client.dni}</span>
+                  {client.balance > 0 && (
+                    <span className="text-xs text-warning-600 font-medium">Deuda: ${client.balance.toLocaleString("es-AR")}</span>
+                  )}
+                </span>
+              </button>
+            ))
+          )}
+          
           <button
             onClick={() => setShowResults(false)}
-            className="w-full text-left px-4 py-2.5 hover:bg-neutral-50 text-sm text-center text-primary-600 font-medium"
+            className="w-full text-left px-4 py-2.5 hover:bg-neutral-50 text-sm text-center text-primary-600 font-medium border-t border-neutral-100"
           >
             Ver todos los clientes
           </button>

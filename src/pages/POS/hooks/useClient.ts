@@ -1,9 +1,11 @@
 import { useState, useCallback } from "react";
 import api from "../../../api/client";
-import type { Client } from "../../../types";
+import type { Client, ClientListResponse } from "../../../types";
 
 interface UseClientResult {
   createClient: (data: { fullName: string; dni: string; phone?: string }) => Promise<Client>;
+  listClients: (params?: { search?: string; page?: number; limit?: number }) => Promise<ClientListResponse>;
+  searchClients: (query: string) => Promise<Client[]>;
   loading: boolean;
   error: string | null;
 }
@@ -31,5 +33,43 @@ export function useClient(): UseClientResult {
     }
   }, []);
 
-  return { createClient, loading, error };
+  const listClients = useCallback(async (params?: { search?: string; page?: number; limit?: number }) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.search) queryParams.set("search", params.search);
+      if (params?.page) queryParams.set("page", params.page.toString());
+      if (params?.limit) queryParams.set("limit", params.limit.toString());
+      
+      const { data } = await api.get(`/clients?${queryParams.toString()}`);
+      return data;
+    } catch (err: any) {
+      const message = err.response?.data?.message || "Error al cargar clientes";
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const searchClients = useCallback(async (query: string) => {
+    if (!query.trim()) return [];
+    setLoading(true);
+    setError(null);
+    try {
+      const { data } = await api.get("/clients", { 
+        params: { search: query, limit: 10, page: 1 } 
+      });
+      return data.items || [];
+    } catch (err: any) {
+      const message = err.response?.data?.message || "Error al buscar clientes";
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { createClient, listClients, searchClients, loading, error };
 }
