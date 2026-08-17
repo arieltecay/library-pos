@@ -1,0 +1,105 @@
+import { useState, useRef, type KeyboardEvent } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+
+export default function LoginPage() {
+  const { loginPin } = useAuth();
+  const navigate = useNavigate();
+  const [pin, setPin] = useState(["", "", "", ""]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+
+  async function handleSubmit(e?: React.FormEvent) {
+    e?.preventDefault();
+    const fullPin = pin.join("");
+    if (fullPin.length !== 4) return;
+
+    setLoading(true);
+    setError("");
+    try {
+      await loginPin(fullPin);
+      navigate("/");
+    } catch {
+      setError("PIN incorrecto");
+      setPin(["", "", "", ""]);
+      inputsRef.current[0]?.focus();
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleChange(index: number, value: string) {
+    if (!/^\d?$/.test(value)) return;
+    const newPin = [...pin];
+    newPin[index] = value;
+    setPin(newPin);
+
+    if (value && index < 3) {
+      inputsRef.current[index + 1]?.focus();
+    }
+
+    if (newPin.every((d) => d !== "") && index === 3) {
+      setTimeout(() => handleSubmit(), 100);
+    }
+  }
+
+  function handleKeyDown(index: number, e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Backspace" && !pin[index] && index > 0) {
+      inputsRef.current[index - 1]?.focus();
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-neutral-900">
+      <div className="w-full max-w-sm mx-auto px-6">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary-600 mb-6">
+            <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5S19.832 5.477 21 6.253v13C19.832 18.477 18.246 18 16.5 18s-3.332.477-4.5 1.253" />
+            </svg>
+          </div>
+          <h1 className="text-3xl font-bold text-white mb-2">Library System</h1>
+          <p className="text-neutral-400">Ingrese su PIN para continuar</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="flex justify-center gap-3">
+            {pin.map((digit, index) => (
+              <input
+                key={index}
+                ref={(el) => { inputsRef.current[index] = el; }}
+                type="password"
+                inputMode="numeric"
+                maxLength={1}
+                value={digit}
+                onChange={(e) => handleChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                disabled={loading}
+                autoFocus={index === 0}
+                className="w-16 h-16 text-center text-2xl font-bold rounded-xl border-2 border-neutral-700 bg-neutral-800 text-white focus:border-primary-500 focus:outline-none transition-colors"
+              />
+            ))}
+          </div>
+
+          {error && (
+            <p className="text-center text-danger-500 text-sm font-medium">{error}</p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading || pin.join("").length !== 4}
+            className="w-full py-3.5 rounded-xl bg-primary-600 text-white font-semibold hover:bg-primary-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            {loading ? "Verificando..." : "Ingresar"}
+          </button>
+        </form>
+
+        <div className="mt-8 text-center text-neutral-500 text-sm">
+          <p>PINes de prueba:</p>
+          <p className="mt-1">Admin: 1234 | Vendedores: 1111, 2222, 3333</p>
+        </div>
+      </div>
+    </div>
+  );
+}

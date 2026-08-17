@@ -1,0 +1,18 @@
+export interface PaymentPanelProps {
+  subtotal: number;
+  discountValue: number;
+  discountType: "$" | "%";
+  setDiscountValue: (value: number) => void;
+  setDiscountType: (type: "$" | "%") => void;
+  paymentMethod: "cash" | "transfer" | "credit";
+  setPaymentMethod: (method: "cash" | "transfer" | "credit") => void;
+  amountReceived: string;
+  setAmountReceived: (value: string) => void;
+  total: number;
+  change: number;
+  discountAmount: number;
+  onCheckout: () => void;
+  onClearSale: () => void;
+  loading: boolean;
+  disabled?: boolean;
+}
