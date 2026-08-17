@@ -23,9 +23,11 @@ export function useShift(): UseShiftResult {
     setError(null);
     try {
       const { data } = await api.get("/cash-shifts/active");
+      console.log("[useShift] API response:", data);
       setActiveShift(data.cashShift);
       setShiftStats(data.aggregated);
     } catch (err: any) {
+      console.error("[useShift] Error fetching active shift:", err);
       setError(err.response?.data?.message || "Error al cargar turno");
     } finally {
       setLoading(false);
