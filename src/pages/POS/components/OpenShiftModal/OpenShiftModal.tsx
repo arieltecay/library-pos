@@ -7,7 +7,12 @@ export function OpenShiftModal({ isOpen, onClose, onSubmit, loading }: OpenShift
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit(parseFloat(openingAmount) || 0);
+    const amount = parseFloat(openingAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Debe ingresar un monto inicial mayor a 0");
+      return;
+    }
+    await onSubmit(amount);
   };
 
   return (

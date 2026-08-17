@@ -15,7 +15,12 @@ export function CloseShiftModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit(parseFloat(closingAmount) || 0, note.trim() || undefined);
+    const amount = parseFloat(closingAmount);
+    if (isNaN(amount) || amount < 0) {
+      alert("Debe ingresar un monto final válido");
+      return;
+    }
+    await onSubmit(amount, note.trim() || undefined);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
