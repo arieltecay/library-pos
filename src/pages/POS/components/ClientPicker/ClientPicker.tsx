@@ -63,10 +63,6 @@ export function ClientPicker({ selected, onSelect, onNewClient }: ClientPickerPr
     setTimeout(() => searchInputRef.current?.focus(), 0);
   };
 
-  const handleBlur = () => {
-    setTimeout(() => setShowResults(false), 200);
-  };
-
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
   };
@@ -96,7 +92,7 @@ export function ClientPicker({ selected, onSelect, onNewClient }: ClientPickerPr
           value={displayName}
           onClick={handleFocus}
           onFocus={handleFocus}
-          onBlur={handleBlur}
+          onBlur={() => {}}
           className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm focus:border-primary-500 focus:outline-none cursor-pointer"
           placeholder="Seleccionar cliente..."
         />
