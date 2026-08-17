@@ -94,11 +94,6 @@ export default function LoginPage() {
             {loading ? "Verificando..." : "Ingresar"}
           </button>
         </form>
-
-        <div className="mt-8 text-center text-neutral-500 text-sm">
-          <p>PINes de prueba:</p>
-          <p className="mt-1">Admin: 1234 | Vendedores: 1111, 2222, 3333</p>
-        </div>
       </div>
     </div>
   );
