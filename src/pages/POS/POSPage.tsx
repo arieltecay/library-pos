@@ -92,7 +92,12 @@ export default function POSPage() {
   // Handlers
   const handleOpenShift = async () => {
     try {
-      await openShift(parseFloat(openingAmount) || 0);
+      const amount = parseFloat(openingAmount);
+      if (isNaN(amount) || amount <= 0) {
+        showError("Debe ingresar un monto inicial mayor a 0");
+        return;
+      }
+      await openShift(amount);
       setShowOpenShift(false);
       setOpeningAmount("");
       success("Turno de caja abierto");
@@ -104,6 +109,10 @@ export default function POSPage() {
   const handleCloseShift = async (closingAmount: number, note?: string) => {
     if (!activeShift) return;
     try {
+      if (isNaN(closingAmount) || closingAmount < 0) {
+        showError("Debe ingresar un monto final válido");
+        return;
+      }
       await closeShift(closingAmount, note);
       setShowCloseShift(false);
       setClosingAmount("");
