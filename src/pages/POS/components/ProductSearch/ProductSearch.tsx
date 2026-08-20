@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import type { Product, ProductSearchProps } from "./types";
+import type { ProductSearchProps } from "./types";
 
 export function ProductSearch({
   products,
@@ -30,17 +30,6 @@ export function ProductSearch({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && filteredProducts.length > 0) {
-      e.preventDefault();
-      onAddProduct(filteredProducts[0]);
-      onSearchChange("");
-      setShowResults(false);
-    } else if (e.key === "Escape") {
-      setShowResults(false);
-    }
-  };
 
   const handleFocus = () => {
     if (search.trim()) setShowResults(true);

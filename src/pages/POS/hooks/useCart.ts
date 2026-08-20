@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useMemo } from "react";
 import type { Product, SaleItem } from "../../../types";
 
 export interface CartItem extends SaleItem {

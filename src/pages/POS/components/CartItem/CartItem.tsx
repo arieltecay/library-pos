@@ -1,11 +1,7 @@
-import type { CartItem, CartItemProps } from "./types";
+import type { CartItemProps } from "./types";
 import { QuantityInput } from "../QuantityInput/QuantityInput";
 
 export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
-  const handleQuantityChange = (quantity: number) => {
-    onUpdateQuantity(item.product, quantity);
-  };
-
   return (
     <div className="grid grid-cols-[130px_1fr_90px_110px_36px] gap-2 px-3 py-2.5 items-center border-b border-neutral-50 last:border-0">
       <div className="flex items-center gap-1">

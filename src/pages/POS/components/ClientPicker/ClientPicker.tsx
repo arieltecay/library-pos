@@ -1,9 +1,9 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useClient } from "../../hooks/useClient";
 import type { Client, ClientPickerProps } from "./types";
 
 export function ClientPicker({ selected, onSelect, onNewClient }: ClientPickerProps) {
-  const { searchClients, loading: apiLoading } = useClient();
+  const { searchClients } = useClient();
   const [search, setSearch] = useState("");
   const [showResults, setShowResults] = useState(false);
   const [results, setResults] = useState<Client[]>([]);

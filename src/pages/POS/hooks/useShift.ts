@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import api from "../../../api/client";
 import type { CashShift, ShiftAggregated } from "../../../types";
+import type { CashMovementAggregated } from "../components/CashMovementModal/types";
 
 interface UseShiftResult {
   activeShift: CashShift | null;
@@ -8,7 +9,7 @@ interface UseShiftResult {
   loading: boolean;
   error: string | null;
   openShift: (openingAmount: number) => Promise<void>;
-  closeShift: (closingAmount: number, note?: string) => Promise<void>;
+  closeShift: (closingAmount: number, note?: string, aggregated?: CashMovementAggregated) => Promise<void>;
   refetch: () => Promise<void>;
 }
 
@@ -24,13 +25,11 @@ export function useShift(): UseShiftResult {
     setError(null);
     try {
       const { data } = await api.get("/cash-shifts/active");
-      console.log("[useShift] API response:", data);
       if (isMountedRef.current) {
         setActiveShift(data.cashShift);
         setShiftStats(data.aggregated);
       }
     } catch (err: any) {
-      console.error("[useShift] Error fetching active shift:", err);
       if (isMountedRef.current) {
         setError(err.response?.data?.message || "Error al cargar turno");
       }
@@ -49,16 +48,19 @@ export function useShift(): UseShiftResult {
     } catch (err: any) {
       setError(err.response?.data?.message || "Error al abrir turno");
       throw err;
+    } finally {
+      setLoading(false);
     }
   }, [fetchActiveShift]);
 
-  const closeShift = useCallback(async (closingAmount: number, note?: string) => {
+  const closeShift = useCallback(async (closingAmount: number, note?: string, aggregated?: CashMovementAggregated) => {
     if (!activeShift) return;
     setError(null);
     try {
       await api.post(`/cash-shifts/${activeShift.id}/close`, {
         closingAmount,
         note: note || "",
+        aggregated,
       });
       setActiveShift(null);
       setShiftStats(null);
@@ -69,6 +71,7 @@ export function useShift(): UseShiftResult {
   }, [activeShift]);
 
   useEffect(() => {
+    isMountedRef.current = true;
     fetchActiveShift(true);
     // Poll every 10 seconds to keep shift stats updated
     const interval = setInterval(() => fetchActiveShift(false), 10000);

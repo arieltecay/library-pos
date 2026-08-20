@@ -5,8 +5,7 @@ import type { OpenShiftModalProps } from "./types";
 export function OpenShiftModal({ isOpen, onClose, onSubmit, loading }: OpenShiftModalProps) {
   const [openingAmount, setOpeningAmount] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (_e: React.FormEvent) => {
     const amount = parseFloat(openingAmount);
     if (isNaN(amount) || amount <= 0) {
       alert("Debe ingresar un monto inicial mayor a 0");

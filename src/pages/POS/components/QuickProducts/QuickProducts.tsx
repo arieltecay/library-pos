@@ -1,4 +1,4 @@
-import type { Product, QuickProductsProps } from "./types";
+import type { QuickProductsProps } from "./types";
 
 export function QuickProducts({ products, onAddProduct }: QuickProductsProps) {
   const quickProducts = products

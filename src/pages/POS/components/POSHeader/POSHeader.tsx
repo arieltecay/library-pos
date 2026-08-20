@@ -1,15 +1,25 @@
+import { useState } from 'react';
 import { useAuth } from "../../../../hooks/useAuth";
+import { useCashMovements } from "../../hooks/useCashMovements";
 import type { POSHeaderProps } from "./types";
+import { CashMovementModal } from "../CashMovementModal";
+import type { CashMovementFormData } from "../CashMovementModal/types";
 
 export function POSHeader({
   activeShift,
-  shiftStats,
-  onOpenShift,
   onCloseShift,
   onShiftStatus,
   onLogout,
+  onCashMovement,
 }: POSHeaderProps) {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const { aggregated, loading } = useCashMovements(
+    activeShift?.id ?? null
+  );
+
+  const [movementsOpen, setMovementsOpen] = useState(false);
+
+  const unreadCount = aggregated?.movementsCount ?? 0;
 
   return (
     <header className="bg-white border-b border-neutral-200 px-6 py-3 flex items-center justify-between gap-6">
@@ -56,11 +66,33 @@ export function POSHeader({
           >
             Cerrar Turno
           </button>
+          <button
+            onClick={() => setMovementsOpen(true)}
+            className="ml-2 px-4 py-2 rounded-lg bg-white border border-primary-500 text-primary-600 text-sm font-medium hover:bg-primary-50 hover:border-primary-600 transition-colors flex items-center gap-2"
+            aria-label="Ver movimientos de caja"
+          >
+            <span>Movimientos</span>
+            {unreadCount > 0 && (
+              <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-primary-600 bg-primary-50 rounded-full">
+                {unreadCount}
+              </span>
+            )}
+          </button>
           <button onClick={onLogout} className="ml-2 text-sm text-danger-600 hover:text-danger-700 font-medium">
             Salir
           </button>
         </div>
       </div>
+
+      <CashMovementModal
+        isOpen={movementsOpen}
+        onClose={() => setMovementsOpen(false)}
+        onSubmit={async (data: CashMovementFormData) => {
+          await onCashMovement(data);
+          setMovementsOpen(false);
+        }}
+        loading={loading}
+      />
     </header>
   );
 }

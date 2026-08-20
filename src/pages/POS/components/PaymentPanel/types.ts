@@ -8,11 +8,9 @@ export interface PaymentPanelProps {
   setPaymentMethod: (method: "cash" | "transfer" | "credit") => void;
   amountReceived: string;
   setAmountReceived: (value: string) => void;
-  total: number;
   change: number;
   discountAmount: number;
   onCheckout: () => void;
-  onClearSale: () => void;
   loading: boolean;
   disabled?: boolean;
 }

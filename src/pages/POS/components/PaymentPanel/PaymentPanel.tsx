@@ -16,11 +16,9 @@ export function PaymentPanel({
   setPaymentMethod,
   amountReceived,
   setAmountReceived,
-  total,
   change,
   discountAmount,
   onCheckout,
-  onClearSale,
   loading,
   disabled,
 }: PaymentPanelProps) {

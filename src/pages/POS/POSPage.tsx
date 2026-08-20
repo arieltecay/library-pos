@@ -1,12 +1,13 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useProducts } from "./hooks/useProducts";
 import { useShift } from "./hooks/useShift";
-import { useCart, type CartItem } from "./hooks/useCart";
+import { useCart } from "./hooks/useCart";
 import { useSale } from "./hooks/useSale";
 import { useClient } from "./hooks/useClient";
+import { useCashMovements } from "./hooks/useCashMovements";
 import { POSHeader } from "./components/POSHeader/POSHeader";
 import { Cart } from "./components/Cart/Cart";
 import { PaymentPanel } from "./components/PaymentPanel/PaymentPanel";
@@ -18,24 +19,20 @@ import { CloseShiftModal } from "./components/CloseShiftModal/CloseShiftModal";
 import { ShiftStatusModal } from "./components/ShiftStatusModal/ShiftStatusModal";
 import { NewClientModal } from "./components/NewClientModal/NewClientModal";
 import { SaleSuccessModal } from "./components/SaleSuccessModal/SaleSuccessModal";
-import type { Product, Client } from "../../types";
-
-const PAYMENT_METHODS = [
-  { value: "cash", label: "Efectivo", icon: "payments" },
-  { value: "transfer", label: "Transferencia", icon: "account_balance" },
-  { value: "credit", label: "Crédito", icon: "credit_card" },
-] as const;
+import type { Client } from "../../types";
+import type { CashMovementAggregated } from "./components/CashMovementModal/types";
 
 export default function POSPage() {
-  const { user, logout } = useAuth();
-  const { success, error: showError, warning } = useToast();
+  const { logout } = useAuth();
+  const { success, error: showError } = useToast();
 
   // Hooks
-  const { products, loading: productsLoading, refetch: refetchProducts } = useProducts(100);
+  const { products, refetch: refetchProducts } = useProducts(100);
   const { activeShift, shiftStats, openShift, closeShift, loading: shiftLoading, refetch } = useShift();
-  const { cart, addToCart, updateQuantity, removeItem, clearCart, subtotal, itemCount } = useCart(products);
+  const { cart, addToCart, updateQuantity, removeItem, clearCart, subtotal } = useCart(products);
   const { checkout, loading: saleLoading } = useSale();
   const { createClient, loading: clientLoading } = useClient();
+  const { aggregated: aggregatedMovements, createMovement: handleCreateCashMovement } = useCashMovements(activeShift?.id ?? null);
   const [discountValue, setDiscountValue] = useState(0);
   const [discountType, setDiscountType] = useState<"$" | "%">("$");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "transfer" | "credit">("cash");
@@ -45,12 +42,9 @@ export default function POSPage() {
 
   // Modals state
   const [showOpenShift, setShowOpenShift] = useState(false);
-  const [openingAmount, setOpeningAmount] = useState("");
   const [showCloseShift, setShowCloseShift] = useState(false);
-  const [closingAmount, setClosingAmount] = useState("");
   const [showShiftStatus, setShowShiftStatus] = useState(false);
   const [showNewClient, setShowNewClient] = useState(false);
-  const [newClient, setNewClient] = useState({ fullName: "", dni: "", phone: "" });
   const [savingClient, setSavingClient] = useState(false);
   const [saleSuccess, setSaleSuccess] = useState<{ total: number; change: number } | null>(null);
 
@@ -69,21 +63,6 @@ export default function POSPage() {
     return 0;
   }, [paymentMethod, amountReceived, total]);
 
-  const quickProducts = useMemo(() => {
-    return products
-      .filter((p) => p.active && p.type === "service")
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .slice(0, 5);
-  }, [products]);
-
-  const filteredProducts = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return [];
-    return products
-      .filter((p) => p.active && p.name.toLowerCase().includes(q))
-      .slice(0, 8);
-  }, [products, search]);
-
   // Keyboard shortcuts
   const anyModalOpen = showOpenShift || showCloseShift || showShiftStatus || showNewClient || !!saleSuccess;
   const hasCartItems = cart.length > 0;
@@ -98,23 +77,21 @@ export default function POSPage() {
       }
       await openShift(amount);
       setShowOpenShift(false);
-      setOpeningAmount("");
       success("Turno de caja abierto");
     } catch (err: any) {
       showError(err.response?.data?.message || "Error al abrir turno de caja");
     }
   };
 
-  const handleCloseShift = async (closingAmount: number, note?: string) => {
+  const handleCloseShift = async (closingAmount: number, note?: string, aggregated?: CashMovementAggregated) => {
     if (!activeShift) return;
     try {
       if (isNaN(closingAmount) || closingAmount < 0) {
         showError("Debe ingresar un monto final válido");
         return;
       }
-      await closeShift(closingAmount, note);
+      await closeShift(closingAmount, note, aggregated);
       setShowCloseShift(false);
-      setClosingAmount("");
       success("Turno de caja cerrado");
     } catch (err: any) {
       showError(err.response?.data?.message || "Error al cerrar turno de caja");
@@ -139,7 +116,6 @@ export default function POSPage() {
       });
       setSelectedClient(client);
       setShowNewClient(false);
-      setNewClient({ fullName: "", dni: "", phone: "" });
       success("Cliente creado");
     } catch (err: any) {
       showError(err.response?.data?.message || "Error al crear el cliente");
@@ -262,11 +238,10 @@ export default function POSPage() {
     <div className="min-h-screen bg-neutral-100 flex flex-col">
       <POSHeader
         activeShift={activeShift}
-        shiftStats={shiftStats}
-        onOpenShift={() => setShowOpenShift(true)}
         onCloseShift={() => setShowCloseShift(true)}
         onShiftStatus={() => setShowShiftStatus(true)}
         onLogout={logout}
+        onCashMovement={handleCreateCashMovement}
       />
 
       <div className="bg-white border-b border-neutral-200 px-6 py-4">
@@ -330,11 +305,9 @@ export default function POSPage() {
           setPaymentMethod={setPaymentMethod}
           amountReceived={amountReceived}
           setAmountReceived={setAmountReceived}
-          total={total}
           change={change}
           discountAmount={discountAmount}
           onCheckout={handleCheckout}
-          onClearSale={clearSale}
           loading={saleLoading || clientLoading || savingClient}
           disabled={!activeShift}
         />
@@ -358,6 +331,7 @@ export default function POSPage() {
         activeShift={activeShift}
         shiftStats={shiftStats}
         loading={shiftLoading}
+        aggregated={aggregatedMovements ?? undefined}
       />
 
       <ShiftStatusModal
