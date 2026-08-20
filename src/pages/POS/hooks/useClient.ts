@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import api from "../../../api/client";
-import type { Client, ClientListResponse } from "../../../types";
+import type { Client, ClientListResponse } from "@/clients/types";
 
 interface UseClientResult {
   createClient: (data: { fullName: string; dni: string; phone?: string }) => Promise<Client>;

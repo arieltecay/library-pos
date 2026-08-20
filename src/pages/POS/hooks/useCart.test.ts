@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useCart } from './useCart';
-import type { Product } from '../../../types';
+import type { Product } from '@/products/types';
 
 const createMockProducts = (): Product[] => [
   {

@@ -1,4 +1,4 @@
-import type { CashShift } from "../../../../types";
+import type { CashShift } from "@/shifts/types";
 
 export interface ShiftStatusModalProps {
   isOpen: boolean;

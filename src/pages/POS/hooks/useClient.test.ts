@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useClient } from './useClient';
 import api from '../../../api/client';
-import type { Client, ClientListResponse } from '../../../types';
+import type { Client, ClientListResponse } from '@/clients/types';
 
 const mockClient: Client = {
   id: 'client-1',

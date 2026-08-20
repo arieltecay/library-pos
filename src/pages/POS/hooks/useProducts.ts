@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import api from "../../../api/client";
-import type { Product } from "../../../types";
+import type { Product } from "@/products/types";
 
 interface UseProductsResult {
   products: Product[];

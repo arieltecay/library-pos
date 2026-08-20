@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import api from "../../../api/client";
-import type { CashShift, ShiftAggregated } from "../../../types";
+import type { CashShift, ShiftAggregated } from "@/shifts/types";
 import type { CashMovementAggregated } from "../components/CashMovementModal/types";
 
 interface UseShiftResult {

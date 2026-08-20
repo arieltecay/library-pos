@@ -1,4 +1,4 @@
-import type { CartItem } from "../CartItem/types";
+import type { CartItem } from "@/cart/types";
 
 export interface CartProps {
   cart: CartItem[];
@@ -6,3 +6,5 @@ export interface CartProps {
   onRemove: (productId: string) => void;
   onClear: () => void;
 }
+
+export type { CartItem };

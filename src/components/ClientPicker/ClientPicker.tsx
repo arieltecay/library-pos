@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import api from "../../api/client";
-import type { Client } from "../../types";
+import type { Client } from "@/clients/types";
 
 interface ClientPickerProps {
   selected: Client | null;

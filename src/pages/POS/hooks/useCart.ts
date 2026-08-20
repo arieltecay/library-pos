@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import type { Product, SaleItem } from "../../../types";
+import type { Product } from "@/products/types";
+import type { SaleItem } from "@/cart/types";
 
 export interface CartItem extends SaleItem {
   stock: number;

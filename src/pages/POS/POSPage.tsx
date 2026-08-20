@@ -19,7 +19,7 @@ import { CloseShiftModal } from "./components/CloseShiftModal/CloseShiftModal";
 import { ShiftStatusModal } from "./components/ShiftStatusModal/ShiftStatusModal";
 import { NewClientModal } from "./components/NewClientModal/NewClientModal";
 import { SaleSuccessModal } from "./components/SaleSuccessModal/SaleSuccessModal";
-import type { Client } from "../../types";
+import type { Client } from "@/clients/types";
 import type { CashMovementAggregated } from "./components/CashMovementModal/types";
 
 export default function POSPage() {
