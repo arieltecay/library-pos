@@ -9,12 +9,10 @@ export interface CartItem extends SaleItem {
 interface UseCartResult {
   cart: CartItem[];
   addToCart: (product: Product) => void;
-  addQuantity: (productId: string, quantity: number) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   removeItem: (productId: string) => void;
   clearCart: () => void;
   subtotal: number;
-  itemCount: number;
 }
 
 export function useCart(products: Product[]): UseCartResult {
@@ -49,26 +47,6 @@ export function useCart(products: Product[]): UseCartResult {
     });
   }
 
-  function addQuantity(productId: string, quantity: number) {
-    setCart((prev) => {
-      const existing = prev.find((item) => item.product === productId);
-      if (existing) {
-        const product = products.find((p) => p.id === productId);
-        const newQty = existing.quantity + quantity;
-        const cappedQty = product?.type === "product" && newQty > product.stock ? product.stock : newQty;
-        if (cappedQty <= 0) {
-          return prev.filter((item) => item.product !== productId);
-        }
-        return prev.map((item) =>
-          item.product === productId
-            ? { ...item, quantity: cappedQty, subtotal: cappedQty * item.unitPrice }
-            : item
-        );
-      }
-      return prev;
-    });
-  }
-
   function updateQuantity(productId: string, quantity: number) {
     setCart((prev) => {
       const product = products.find((p) => p.id === productId);
@@ -94,16 +72,13 @@ export function useCart(products: Product[]): UseCartResult {
   }
 
   const subtotal = useMemo(() => cart.reduce((sum, item) => sum + item.subtotal, 0), [cart]);
-  const itemCount = useMemo(() => cart.reduce((sum, item) => sum + item.quantity, 0), [cart]);
 
   return {
     cart,
     addToCart,
-    addQuantity,
     updateQuantity,
     removeItem,
     clearCart,
     subtotal,
-    itemCount,
   };
 }

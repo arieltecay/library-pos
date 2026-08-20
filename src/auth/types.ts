@@ -1,13 +1,13 @@
 export interface User {
   id: string;
   name: string;
-  email: string;
+  email?: string;
   role: "admin" | "seller";
   schoolId: string;
   posId?: string;
-  active: boolean;
-  createdAt: string;
-  updatedAt: string;
+  active?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AuthResponse {

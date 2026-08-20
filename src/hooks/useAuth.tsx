@@ -1,8 +1,9 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import { loginWithPin, loginWithEmail, type AuthUser } from "../api/auth";
+import { authService, type AuthService } from "@/auth/service";
+import type { User } from "@/auth/types";
 
 interface AuthContextValue {
-  user: AuthUser | null;
+  user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
   loginPin: (pin: string) => Promise<void>;
@@ -13,39 +14,35 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
+interface AuthProviderProps {
+  children: ReactNode;
+  authService?: AuthService;
+}
+
+export function AuthProvider({ children, authService: injectedService = authService }: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    const token = localStorage.getItem("accessToken");
-    if (stored && token) {
-      setUser(JSON.parse(stored));
+    const storedUser = injectedService.getStoredUser();
+    if (storedUser) {
+      setUser(storedUser);
     }
     setLoading(false);
-  }, []);
+  }, [injectedService]);
 
   async function loginPin(pin: string) {
-    const res = await loginWithPin(pin);
-    localStorage.setItem("accessToken", res.accessToken);
-    localStorage.setItem("refreshToken", res.refreshToken);
-    localStorage.setItem("user", JSON.stringify(res.user));
-    setUser(res.user);
+    const loggedInUser = await injectedService.loginPin(pin);
+    setUser(loggedInUser);
   }
 
   async function loginEmail(email: string, password: string) {
-    const res = await loginWithEmail(email, password);
-    localStorage.setItem("accessToken", res.accessToken);
-    localStorage.setItem("refreshToken", res.refreshToken);
-    localStorage.setItem("user", JSON.stringify(res.user));
-    setUser(res.user);
+    const loggedInUser = await injectedService.loginEmail(email, password);
+    setUser(loggedInUser);
   }
 
   function logout() {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
+    injectedService.logout();
     setUser(null);
   }
 

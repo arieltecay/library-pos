@@ -46,9 +46,6 @@ const addToCart = (result: ReturnType<typeof useCart>, product: Product) =>
 const updateQty = (result: ReturnType<typeof useCart>, id: string, qty: number) =>
   act(() => result.updateQuantity(id, qty));
 
-const addQty = (result: ReturnType<typeof useCart>, id: string, delta: number) =>
-  act(() => result.addQuantity(id, delta));
-
 const remove = (result: ReturnType<typeof useCart>, id: string) =>
   act(() => result.removeItem(id));
 
@@ -61,7 +58,6 @@ describe('useCart - initial state', () => {
     const { result } = createHook();
     expect(result.current.cart).toEqual([]);
     expect(result.current.subtotal).toBe(0);
-    expect(result.current.itemCount).toBe(0);
   });
 });
 
@@ -80,7 +76,6 @@ describe('useCart - addToCart', () => {
       subtotal: 1500,
     });
     expect(result.current.subtotal).toBe(1500);
-    expect(result.current.itemCount).toBe(1);
   });
 
   it('should increment quantity when adding same product', () => {
@@ -158,11 +153,10 @@ describe('useCart - clearCart', () => {
     clear(result.current);
     expect(result.current.cart).toHaveLength(0);
     expect(result.current.subtotal).toBe(0);
-    expect(result.current.itemCount).toBe(0);
   });
 });
 
-describe('useCart - subtotal & itemCount', () => {
+describe('useCart - subtotal', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('should calculate subtotal correctly with multiple items', () => {
@@ -171,26 +165,5 @@ describe('useCart - subtotal & itemCount', () => {
     addToCart(result.current, mockProducts[0]);
     addToCart(result.current, mockProducts[2]);
     expect(result.current.subtotal).toBe(3800);
-    expect(result.current.itemCount).toBe(3);
-  });
-});
-
-describe('useCart - addQuantity', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('should handle addQuantity with positive and negative values', () => {
-    const { result } = createHook();
-    addToCart(result.current, mockProducts[0]);
-    addQty(result.current, 'prod-1', 3);
-    expect(result.current.cart[0].quantity).toBe(4);
-    addQty(result.current, 'prod-1', -2);
-    expect(result.current.cart[0].quantity).toBe(2);
-  });
-
-  it('should remove item when addQuantity makes it zero or negative', () => {
-    const { result } = createHook();
-    addToCart(result.current, mockProducts[0]);
-    addQty(result.current, 'prod-1', -5);
-    expect(result.current.cart).toHaveLength(0);
   });
 });
