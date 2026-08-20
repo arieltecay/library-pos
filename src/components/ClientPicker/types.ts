@@ -5,5 +5,3 @@ export interface ClientPickerProps {
   onSelect: (client: Client | null) => void;
   onNewClient: () => void;
 }
-
-export type { Client };

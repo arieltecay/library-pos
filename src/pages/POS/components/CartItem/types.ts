@@ -5,5 +5,3 @@ export interface CartItemProps {
   onUpdateQuantity: (productId: string, quantity: number) => void;
   onRemove: (productId: string) => void;
 }
-
-export type { CartItem };

@@ -7,6 +7,25 @@ const STORAGE_KEYS = {
   USER: "user",
 } as const;
 
+function getStoredAuth(): { user: User; token: string } | null {
+  const stored = localStorage.getItem(STORAGE_KEYS.USER);
+  const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+  if (stored && token) return { user: JSON.parse(stored), token };
+  return null;
+}
+
+function setStoredAuth(user: User, accessToken: string, refreshToken: string): void {
+  localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
+  localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
+  localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+}
+
+function clearStoredAuth(): void {
+  localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+  localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+  localStorage.removeItem(STORAGE_KEYS.USER);
+}
+
 export interface AuthService {
   getStoredUser: () => User | null;
   getAccessToken: () => string | null;
@@ -16,47 +35,20 @@ export interface AuthService {
 }
 
 export function createAuthService(): AuthService {
-  function getStoredUser(): User | null {
-    const stored = localStorage.getItem(STORAGE_KEYS.USER);
-    const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-    if (stored && token) {
-      return JSON.parse(stored);
-    }
-    return null;
-  }
-
-  function getAccessToken(): string | null {
-    return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-  }
-
-  async function loginPin(pin: string): Promise<User> {
-    const res = await loginWithPin(pin);
-    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, res.accessToken);
-    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, res.refreshToken);
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(res.user));
-    return res.user;
-  }
-
-  async function loginEmail(email: string, password: string): Promise<User> {
-    const res = await loginWithEmail(email, password);
-    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, res.accessToken);
-    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, res.refreshToken);
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(res.user));
-    return res.user;
-  }
-
-  function logout(): void {
-    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.USER);
-  }
-
   return {
-    getStoredUser,
-    getAccessToken,
-    loginPin,
-    loginEmail,
-    logout,
+    getStoredUser: () => getStoredAuth()?.user ?? null,
+    getAccessToken: () => getStoredAuth()?.token ?? null,
+    loginPin: async (pin: string) => {
+      const res = await loginWithPin(pin);
+      setStoredAuth(res.user, res.accessToken, res.refreshToken);
+      return res.user;
+    },
+    loginEmail: async (email: string, password: string) => {
+      const res = await loginWithEmail(email, password);
+      setStoredAuth(res.user, res.accessToken, res.refreshToken);
+      return res.user;
+    },
+    logout: clearStoredAuth,
   };
 }
 

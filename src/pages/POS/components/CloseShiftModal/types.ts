@@ -1,8 +1,6 @@
 import type { CashShift } from "../types";
 import type { CashMovementAggregated } from "../CashMovementModal/types";
 
-export type { CashMovementAggregated };
-
 export interface CloseShiftModalProps {
   isOpen: boolean;
   onClose: () => void;

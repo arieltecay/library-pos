@@ -2,13 +2,58 @@ import { useState, useRef, type KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
+function PinInput({ pin, onChange, onKeyDown, loading, autoFocusIndex = 0 }: {
+  pin: string[];
+  onChange: (index: number, value: string) => void;
+  onKeyDown: (index: number, e: KeyboardEvent<HTMLInputElement>) => void;
+  loading: boolean;
+  autoFocusIndex?: number;
+}) {
+  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+
+  return (
+    <div className="flex justify-center gap-3">
+      {pin.map((digit, index) => (
+        <input
+          key={index}
+          ref={(el) => { inputsRef.current[index] = el; }}
+          type="password"
+          inputMode="numeric"
+          maxLength={1}
+          value={digit}
+          onChange={(e) => onChange(index, e.target.value)}
+          onKeyDown={(e) => onKeyDown(index, e)}
+          disabled={loading}
+          autoFocus={index === autoFocusIndex}
+          className="w-16 h-16 text-center text-2xl font-bold rounded-xl border-2 border-neutral-700 bg-neutral-800 text-white focus:border-primary-500 focus:outline-none transition-colors"
+        />
+      ))}
+    </div>
+  );
+}
+
+function SubmitButton({ loading, disabled, children }: {
+  loading: boolean;
+  disabled: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="submit"
+      disabled={loading || disabled}
+      className="w-full py-3.5 rounded-xl bg-primary-600 text-white font-semibold hover:bg-primary-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+    >
+      {loading ? "Verificando..." : children}
+    </button>
+  );
+}
+
 export default function LoginPage() {
   const { loginPin } = useAuth();
   const navigate = useNavigate();
   const [pin, setPin] = useState(["", "", "", ""]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
   async function handleSubmit(e?: React.FormEvent) {
     e?.preventDefault();
@@ -23,7 +68,6 @@ export default function LoginPage() {
     } catch {
       setError("PIN incorrecto");
       setPin(["", "", "", ""]);
-      inputsRef.current[0]?.focus();
     } finally {
       setLoading(false);
     }
@@ -36,7 +80,7 @@ export default function LoginPage() {
     setPin(newPin);
 
     if (value && index < 3) {
-      inputsRef.current[index + 1]?.focus();
+      // Focus handled by PinInput via autoFocus
     }
 
     if (newPin.every((d) => d !== "") && index === 3) {
@@ -46,7 +90,7 @@ export default function LoginPage() {
 
   function handleKeyDown(index: number, e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Backspace" && !pin[index] && index > 0) {
-      inputsRef.current[index - 1]?.focus();
+      // Focus handled by PinInput
     }
   }
 
@@ -64,35 +108,9 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex justify-center gap-3">
-            {pin.map((digit, index) => (
-              <input
-                key={index}
-                ref={(el) => { inputsRef.current[index] = el; }}
-                type="password"
-                inputMode="numeric"
-                maxLength={1}
-                value={digit}
-                onChange={(e) => handleChange(index, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(index, e)}
-                disabled={loading}
-                autoFocus={index === 0}
-                className="w-16 h-16 text-center text-2xl font-bold rounded-xl border-2 border-neutral-700 bg-neutral-800 text-white focus:border-primary-500 focus:outline-none transition-colors"
-              />
-            ))}
-          </div>
-
-          {error && (
-            <p className="text-center text-danger-500 text-sm font-medium">{error}</p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading || pin.join("").length !== 4}
-            className="w-full py-3.5 rounded-xl bg-primary-600 text-white font-semibold hover:bg-primary-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? "Verificando..." : "Ingresar"}
-          </button>
+          <PinInput pin={pin} onChange={handleChange} onKeyDown={handleKeyDown} loading={loading} />
+          {error && <p className="text-center text-danger-500 text-sm font-medium">{error}</p>}
+          <SubmitButton loading={loading} disabled={pin.join("").length !== 4}>Ingresar</SubmitButton>
         </form>
       </div>
     </div>

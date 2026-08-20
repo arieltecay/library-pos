@@ -5,7 +5,6 @@ export default function POSPage() {
   const {
     // Core hooks data
     products,
-    refetchProducts,
     activeShift,
     shiftStats,
     shiftLoading,

@@ -6,8 +6,8 @@ interface AuthContextValue {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  loginPin: (pin: string) => Promise<void>;
-  loginEmail: (email: string, password: string) => Promise<void>;
+  loginPin: (_pin: string) => Promise<void>;
+  loginEmail: (_email: string, _password: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
 }
@@ -19,15 +19,17 @@ interface AuthProviderProps {
   authService?: AuthService;
 }
 
+function loadInitialUser(service: AuthService): User | null {
+  return service.getStoredUser();
+}
+
 export function AuthProvider({ children, authService: injectedService = authService }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = injectedService.getStoredUser();
-    if (storedUser) {
-      setUser(storedUser);
-    }
+    const storedUser = loadInitialUser(injectedService);
+    if (storedUser) setUser(storedUser);
     setLoading(false);
   }, [injectedService]);
 

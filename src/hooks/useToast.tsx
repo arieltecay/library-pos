@@ -7,9 +7,9 @@ interface Toast {
 }
 
 interface ToastContextValue {
-  success: (message: string) => void;
-  error: (message: string) => void;
-  warning: (message: string) => void;
+  success: (_message: string) => void;
+  error: (_message: string) => void;
+  warning: (_message: string) => void;
   toasts: Toast[];
 }
 

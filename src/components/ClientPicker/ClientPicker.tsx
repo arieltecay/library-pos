@@ -4,7 +4,7 @@ import type { Client } from "@/pages/POS/components/types";
 
 interface ClientPickerProps {
   selected: Client | null;
-  onSelect: (client: Client | null) => void;
+  onSelect: (_client: Client | null) => void;
   onNewClient: () => void;
 }
 
