@@ -1,16 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import api from "../../../api/client";
-import type { Product } from "@/products/types";
-
-interface UseProductsResult {
-  products: Product[];
-  loading: boolean;
-  error: string | null;
-  refetch: () => Promise<void>;
-}
+import type { UseProductsResult } from "./types";
 
 export function useProducts(limit = 100): UseProductsResult {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<UseProductsResult["products"]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

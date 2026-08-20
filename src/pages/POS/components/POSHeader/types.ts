@@ -1,4 +1,4 @@
-import type { CashShift } from "@/shifts/types";
+import type { CashShift } from "../types";
 import type { CashMovementType, CashMovementCategory } from "../CashMovementModal/types";
 
 export interface POSHeaderProps {

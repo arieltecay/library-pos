@@ -1,22 +1,9 @@
 import { useState, useMemo } from "react";
-import type { Product } from "@/products/types";
-import type { SaleItem } from "@/cart/types";
-
-export interface CartItem extends SaleItem {
-  stock: number;
-}
-
-interface UseCartResult {
-  cart: CartItem[];
-  addToCart: (product: Product) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
-  removeItem: (productId: string) => void;
-  clearCart: () => void;
-  subtotal: number;
-}
+import type { Product } from "../components/types";
+import type { UseCartResult } from "./types";
 
 export function useCart(products: Product[]): UseCartResult {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<UseCartResult["cart"]>([]);
 
   function addToCart(product: Product) {
     setCart((prev) => {

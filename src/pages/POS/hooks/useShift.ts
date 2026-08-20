@@ -1,21 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import api from "../../../api/client";
-import type { CashShift, ShiftAggregated } from "@/shifts/types";
+import type { UseShiftResult } from "./types";
 import type { CashMovementAggregated } from "../components/CashMovementModal/types";
 
-interface UseShiftResult {
-  activeShift: CashShift | null;
-  shiftStats: ShiftAggregated | null;
-  loading: boolean;
-  error: string | null;
-  openShift: (openingAmount: number) => Promise<void>;
-  closeShift: (closingAmount: number, note?: string, aggregated?: CashMovementAggregated) => Promise<void>;
-  refetch: () => Promise<void>;
-}
-
 export function useShift(): UseShiftResult {
-  const [activeShift, setActiveShift] = useState<CashShift | null>(null);
-  const [shiftStats, setShiftStats] = useState<ShiftAggregated | null>(null);
+  const [activeShift, setActiveShift] = useState<UseShiftResult["activeShift"]>(null);
+  const [shiftStats, setShiftStats] = useState<UseShiftResult["shiftStats"]>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const isMountedRef = useRef(true);
@@ -73,7 +63,6 @@ export function useShift(): UseShiftResult {
   useEffect(() => {
     isMountedRef.current = true;
     fetchActiveShift(true);
-    // Poll every 10 seconds to keep shift stats updated
     const interval = setInterval(() => fetchActiveShift(false), 10000);
     return () => {
       isMountedRef.current = false;

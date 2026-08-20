@@ -1,5 +1,5 @@
 import { loginWithPin, loginWithEmail } from "@/api/auth";
-import type { User } from "@/auth/types";
+import type { User } from "@/pages/POS/components/types";
 
 const STORAGE_KEYS = {
   ACCESS_TOKEN: "accessToken",

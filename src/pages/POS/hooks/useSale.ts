@@ -1,17 +1,6 @@
 import { useState, useCallback } from "react";
 import api from "../../../api/client";
-
-interface UseSaleResult {
-  checkout: (params: {
-    items: { product: string; quantity: number }[];
-    clientId?: string;
-    discount: number;
-    paymentMethod: "cash" | "transfer" | "credit";
-    amountReceived: number;
-  }) => Promise<{ total: number; change: number }>;
-  loading: boolean;
-  error: string | null;
-}
+import type { UseSaleResult } from "./types";
 
 export function useSale(): UseSaleResult {
   const [loading, setLoading] = useState(false);

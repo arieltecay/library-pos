@@ -1,4 +1,4 @@
-import type { Client } from "@/clients/types";
+import type { Client } from "../types";
 
 export interface ClientPickerProps {
   selected: Client | null;

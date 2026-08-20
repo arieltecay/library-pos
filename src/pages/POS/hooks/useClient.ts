@@ -1,14 +1,6 @@
 import { useState, useCallback } from "react";
 import api from "../../../api/client";
-import type { Client, ClientListResponse } from "@/clients/types";
-
-interface UseClientResult {
-  createClient: (data: { fullName: string; dni: string; phone?: string }) => Promise<Client>;
-  listClients: (params?: { search?: string; page?: number; limit?: number }) => Promise<ClientListResponse>;
-  searchClients: (query: string) => Promise<Client[]>;
-  loading: boolean;
-  error: string | null;
-}
+import type { UseClientResult } from "./types";
 
 export function useClient(): UseClientResult {
   const [loading, setLoading] = useState(false);

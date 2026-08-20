@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import { authService, type AuthService } from "@/auth/service";
-import type { User } from "@/auth/types";
+import { authService, type AuthService } from "./authService";
+import type { User } from "@/pages/POS/components/types";
 
 interface AuthContextValue {
   user: User | null;
