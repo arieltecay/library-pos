@@ -54,15 +54,13 @@ export function useCart(products: Product[]): UseCartResult {
       if (existing) {
         const product = products.find((p) => p.id === productId);
         const newQty = existing.quantity + quantity;
-        if (product?.type === "product" && newQty > product.stock) {
-          return prev;
-        }
-        if (newQty <= 0) {
+        const cappedQty = product?.type === "product" && newQty > product.stock ? product.stock : newQty;
+        if (cappedQty <= 0) {
           return prev.filter((item) => item.product !== productId);
         }
         return prev.map((item) =>
           item.product === productId
-            ? { ...item, quantity: newQty, subtotal: newQty * item.unitPrice }
+            ? { ...item, quantity: cappedQty, subtotal: cappedQty * item.unitPrice }
             : item
         );
       }
@@ -74,15 +72,13 @@ export function useCart(products: Product[]): UseCartResult {
     setCart((prev) => {
       const product = products.find((p) => p.id === productId);
       const newQty = Math.max(0, quantity);
-      if (product?.type === "product" && newQty > product.stock) {
-        return prev;
-      }
-      if (newQty === 0) {
+      const cappedQty = product?.type === "product" && newQty > product.stock ? product.stock : newQty;
+      if (cappedQty === 0) {
         return prev.filter((item) => item.product !== productId);
       }
       return prev.map((item) =>
         item.product === productId
-          ? { ...item, quantity: newQty, subtotal: newQty * item.unitPrice }
+          ? { ...item, quantity: cappedQty, subtotal: cappedQty * item.unitPrice }
           : item
       );
     });
