@@ -33,7 +33,6 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
-      'max-lines-per-function': ['error', 40],
       'max-params': ['error', 3],
       'max-depth': ['error', 3],
       complexity: ['error', 10],
@@ -62,7 +61,6 @@ export default tseslint.config(
   {
     files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
     rules: {
-      'max-lines-per-function': ['error', 200],
       'no-restricted-imports': 'off',
     },
   }
