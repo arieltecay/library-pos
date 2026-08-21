@@ -37,7 +37,7 @@ export function ProductSearch({
 
   return (
     <div className="flex-1 relative" ref={resultsRef}>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pl-11 pr-4">
         <span className="text-xs font-semibold text-neutral-500">Buscar producto / servicio</span>
         <kbd className="text-xs bg-neutral-100 text-neutral-500 px-1.5 py-0.5 rounded border border-neutral-200">F2</kbd>
       </div>
