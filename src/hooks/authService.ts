@@ -29,8 +29,8 @@ function clearStoredAuth(): void {
 export interface AuthService {
   getStoredUser: () => User | null;
   getAccessToken: () => string | null;
-  loginPin: (pin: string) => Promise<User>;
-  loginEmail: (email: string, password: string) => Promise<User>;
+  loginPin: (_pin: string) => Promise<User>;
+  loginEmail: (_email: string, _password: string) => Promise<User>;
   logout: () => void;
 }
 

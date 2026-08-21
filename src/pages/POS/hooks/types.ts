@@ -1,7 +1,5 @@
-import type { Product } from "../components/types";
-import type { CashShift, ShiftAggregated } from "../components/types";
+import type { Product, CashShift, ShiftAggregated, Client, ClientListResponse } from "../components/types";
 import type { CashMovementAggregated } from "../components/CashMovementModal/types";
-import type { Client, ClientListResponse } from "../components/types";
 import type { CartItem, SaleItem } from "../components/Cart/types";
 
 export interface UseProductsResult {

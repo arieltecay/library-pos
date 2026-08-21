@@ -1,12 +1,5 @@
 import { Cart } from "@/pages/POS/components/Cart/Cart.tsx";
-import type { CartItem } from "@/pages/POS/components/Cart/types.ts";
-
-interface CartSectionProps {
-  cart: CartItem[];
-  onUpdateQuantity: (productId: string, quantity: number) => void;
-  onRemove: (productId: string) => void;
-  onClear: () => void;
-}
+import type { CartSectionProps } from "./types";
 
 export function CartSection({ cart, onUpdateQuantity, onRemove, onClear }: CartSectionProps) {
   return (

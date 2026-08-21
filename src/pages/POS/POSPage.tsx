@@ -14,8 +14,6 @@ export default function POSPage() {
     removeItem,
     clearCart,
     subtotal,
-    saleLoading,
-    clientLoading,
     handleCreateCashMovement,
     // UI State
     discountValue,

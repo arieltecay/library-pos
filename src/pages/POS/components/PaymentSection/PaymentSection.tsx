@@ -1,21 +1,5 @@
 import { PaymentPanel } from "@/pages/POS/components/PaymentPanel/PaymentPanel.tsx";
-
-interface PaymentSectionProps {
-  subtotal: number;
-  discountValue: number;
-  discountType: "$" | "%";
-  setDiscountValue: (v: number) => void;
-  setDiscountType: (t: "$" | "%") => void;
-  paymentMethod: "cash" | "transfer" | "credit";
-  setPaymentMethod: (m: "cash" | "transfer" | "credit") => void;
-  amountReceived: string;
-  setAmountReceived: (v: string) => void;
-  change: number;
-  discountAmount: number;
-  onCheckout: () => void;
-  loading: boolean;
-  disabled: boolean;
-}
+import type { PaymentSectionProps } from "./types";
 
 export function PaymentSection({
   subtotal,

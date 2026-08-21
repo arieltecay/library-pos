@@ -1,7 +1,4 @@
-interface NoShiftViewProps {
-  onOpenShift: () => void;
-  onLogout: () => void;
-}
+import type { NoShiftViewProps } from "./types";
 
 export function NoShiftView({ onOpenShift, onLogout }: NoShiftViewProps) {
   return (

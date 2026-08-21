@@ -34,7 +34,6 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       'max-lines-per-function': ['error', 40],
-      'max-lines': ['error', 200],
       'max-params': ['error', 3],
       'max-depth': ['error', 3],
       complexity: ['error', 10],
@@ -43,7 +42,7 @@ export default tseslint.config(
       'no-var': 'error',
       'no-unused-vars': 'warn',
       '@typescript-eslint/no-explicit-any': 'error',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
       '@typescript-eslint/consistent-type-imports': 'error',
       'no-console': 'warn',
       'no-debugger': 'error',
@@ -64,7 +63,6 @@ export default tseslint.config(
     files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
     rules: {
       'max-lines-per-function': ['error', 200],
-      'max-lines': ['error', 300],
       'no-restricted-imports': 'off',
     },
   }

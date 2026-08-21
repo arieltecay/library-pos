@@ -1,11 +1,5 @@
 import { ClientPicker } from "@/pages/POS/components/ClientPicker/ClientPicker.tsx";
-import type { Client } from "@/pages/POS/components/types.ts";
-
-interface ClientSectionProps {
-  selectedClient: Client | null;
-  onSelectClient: (client: Client | null) => void;
-  onNewClient: () => void;
-}
+import type { ClientSectionProps } from "./types";
 
 export function ClientSection({ selectedClient, onSelectClient, onNewClient }: ClientSectionProps) {
   return (

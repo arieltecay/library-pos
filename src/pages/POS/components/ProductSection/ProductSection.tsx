@@ -1,14 +1,6 @@
 import { ProductSearch } from "@/pages/POS/components/ProductSearch/ProductSearch.tsx";
 import { QuickProducts } from "@/pages/POS/components/QuickProducts/QuickProducts.tsx";
-import type { Product } from "@/pages/POS/components/types.ts";
-
-interface ProductSectionProps {
-  products: Product[];
-  search: string;
-  onSearchChange: (value: string) => void;
-  onAddProduct: (product: Product) => void;
-  disabled: boolean;
-}
+import type { ProductSectionProps } from "./types";
 
 export function ProductSection({ products, search, onSearchChange, onAddProduct, disabled }: ProductSectionProps) {
   return (

@@ -4,8 +4,8 @@ import { useAuth } from "../hooks/useAuth";
 
 function PinInput({ pin, onChange, onKeyDown, loading, autoFocusIndex = 0 }: {
   pin: string[];
-  onChange: (index: number, value: string) => void;
-  onKeyDown: (index: number, e: KeyboardEvent<HTMLInputElement>) => void;
+  onChange: (_index: number, _value: string) => void;
+  onKeyDown: (_index: number, _e: KeyboardEvent<HTMLInputElement>) => void;
   loading: boolean;
   autoFocusIndex?: number;
 }) {
@@ -13,14 +13,14 @@ function PinInput({ pin, onChange, onKeyDown, loading, autoFocusIndex = 0 }: {
 
   return (
     <div className="flex justify-center gap-3">
-      {pin.map((digit, index) => (
+      {pin.map((_digit, index) => (
         <input
           key={index}
           ref={(el) => { inputsRef.current[index] = el; }}
           type="password"
           inputMode="numeric"
           maxLength={1}
-          value={digit}
+          value={pin[index]}
           onChange={(e) => onChange(index, e.target.value)}
           onKeyDown={(e) => onKeyDown(index, e)}
           disabled={loading}
@@ -88,10 +88,8 @@ export default function LoginPage() {
     }
   }
 
-  function handleKeyDown(index: number, e: KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Backspace" && !pin[index] && index > 0) {
-      // Focus handled by PinInput
-    }
+  function handleKeyDown(_index: number, _e: KeyboardEvent<HTMLInputElement>) {
+    // Focus handled by PinInput
   }
 
   return (

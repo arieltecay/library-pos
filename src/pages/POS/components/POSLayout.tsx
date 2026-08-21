@@ -1,10 +1,10 @@
 import { POSHeader } from "@/pages/POS/components/POSHeader/POSHeader.tsx";
-import { ClientSection } from "@/pages/POS/components/ClientSection.tsx";
-import { ProductSection } from "@/pages/POS/components/ProductSection.tsx";
-import { CartSection } from "@/pages/POS/components/CartSection.tsx";
-import { PaymentSection } from "@/pages/POS/components/PaymentSection.tsx";
-import { ModalsSection } from "@/pages/POS/components/ModalsSection.tsx";
-import { NoShiftView } from "@/pages/POS/components/NoShiftView.tsx";
+import { ClientSection } from "@/pages/POS/components/ClientSection/ClientSection.tsx";
+import { ProductSection } from "@/pages/POS/components/ProductSection/ProductSection.tsx";
+import { CartSection } from "@/pages/POS/components/CartSection/CartSection.tsx";
+import { PaymentSection } from "@/pages/POS/components/PaymentSection/PaymentSection.tsx";
+import { ModalsSection } from "@/pages/POS/components/ModalsSection/ModalsSection.tsx";
+import { NoShiftView } from "@/pages/POS/components/NoShiftView/NoShiftView.tsx";
 import type { Client, Product, CartItem } from "@/pages/POS/components/types.ts";
 import type { CashMovementAggregated, CashMovementType, CashMovementCategory } from "@/pages/POS/components/CashMovementModal/types.ts";
 
