@@ -70,48 +70,19 @@ interface HeaderAreaProps {
   onShiftStatus: POSLayoutProps["onShiftStatus"];
   onLogout: POSLayoutProps["logout"];
   onCashMovement: POSLayoutProps["handleCreateCashMovement"];
-  selectedClient: POSLayoutProps["selectedClient"];
-  setSelectedClient: POSLayoutProps["setSelectedClient"];
-  onNewClient: POSLayoutProps["onNewClient"];
-  products: POSLayoutProps["products"];
-  search: POSLayoutProps["search"];
-  setSearch: POSLayoutProps["setSearch"];
-  addToCart: POSLayoutProps["addToCart"];
 }
 
 function HeaderArea(props: HeaderAreaProps) {
-  const { activeShift, onCloseShift, onShiftStatus, onLogout, onCashMovement, selectedClient, setSelectedClient, onNewClient, products, search, setSearch, addToCart } = props;
+  const { activeShift, onCloseShift, onShiftStatus, onLogout, onCashMovement } = props;
 
   return (
-    <>
-      <POSHeader
-        activeShift={activeShift}
-        onCloseShift={onCloseShift}
-        onShiftStatus={onShiftStatus}
-        onLogout={onLogout}
-        onCashMovement={onCashMovement}
-      />
-
-      <div className="bg-white border-b border-neutral-200 px-6 py-4">
-        <div className="flex items-end gap-6">
-          <ClientSection
-            selectedClient={selectedClient}
-            onSelectClient={setSelectedClient}
-            onNewClient={onNewClient}
-          />
-
-          <div className="flex-1 relative">
-            <ProductSearch
-              products={products}
-              search={search}
-              onSearchChange={setSearch}
-              onAddProduct={addToCart}
-              disabled={!activeShift}
-            />
-          </div>
-        </div>
-      </div>
-    </>
+    <POSHeader
+      activeShift={activeShift}
+      onCloseShift={onCloseShift}
+      onShiftStatus={onShiftStatus}
+      onLogout={onLogout}
+      onCashMovement={onCashMovement}
+    />
   );
 }
 
@@ -136,39 +107,74 @@ interface MainContentAreaProps {
   loading: POSLayoutProps["loading"];
   activeShift: POSLayoutProps["activeShift"];
   addToCart: POSLayoutProps["addToCart"];
+  selectedClient: POSLayoutProps["selectedClient"];
+  setSelectedClient: POSLayoutProps["setSelectedClient"];
+  onNewClient: POSLayoutProps["onNewClient"];
+  search: POSLayoutProps["search"];
+  setSearch: POSLayoutProps["setSearch"];
 }
 
 function MainContentArea(props: MainContentAreaProps) {
-  const { products, cart, updateQuantity, removeItem, clearSale, subtotal, discountValue, setDiscountValue, discountType, setDiscountType, paymentMethod, setPaymentMethod, amountReceived, setAmountReceived, change, discountAmount, onCheckout, loading, activeShift, addToCart } = props;
+  const { 
+    products, cart, updateQuantity, removeItem, clearSale, subtotal, 
+    discountValue, setDiscountValue, discountType, setDiscountType, 
+    paymentMethod, setPaymentMethod, amountReceived, setAmountReceived, 
+    change, discountAmount, onCheckout, loading, activeShift, addToCart,
+    selectedClient, setSelectedClient, onNewClient, search, setSearch
+  } = props;
 
   return (
     <div className="flex-1 flex gap-6 p-6 overflow-hidden">
-      <div className="flex-1 flex flex-col min-w-0">
-        <QuickProducts products={products} onAddProduct={addToCart} />
-        <CartSection
-          cart={cart}
-          onUpdateQuantity={updateQuantity}
-          onRemove={removeItem}
-          onClear={clearSale}
-        />
+      <div className="flex-1 flex flex-col min-w-0 gap-4">
+        
+        {/* Client & Search Row */}
+        <div className="flex items-end gap-6 bg-white p-4 rounded-2xl border border-neutral-200">
+          <ClientSection
+            selectedClient={selectedClient}
+            onSelectClient={setSelectedClient}
+            onNewClient={onNewClient}
+          />
+          <div className="flex-1 relative">
+            <ProductSearch
+              products={products}
+              search={search}
+              onSearchChange={setSearch}
+              onAddProduct={addToCart}
+              disabled={!activeShift}
+            />
+          </div>
+        </div>
+
+        {/* Quick Products and Cart */}
+        <div className="flex-1 flex flex-col min-w-0">
+          <QuickProducts products={products} onAddProduct={addToCart} />
+          <CartSection
+            cart={cart}
+            onUpdateQuantity={updateQuantity}
+            onRemove={removeItem}
+            onClear={clearSale}
+          />
+        </div>
       </div>
 
-      <PaymentSection
-        subtotal={subtotal}
-        discountValue={discountValue}
-        discountType={discountType}
-        setDiscountValue={setDiscountValue}
-        setDiscountType={setDiscountType}
-        paymentMethod={paymentMethod}
-        setPaymentMethod={setPaymentMethod}
-        amountReceived={amountReceived}
-        setAmountReceived={setAmountReceived}
-        change={change}
-        discountAmount={discountAmount}
-        onCheckout={onCheckout}
-        loading={loading}
-        disabled={!activeShift}
-      />
+      <div className="w-[380px] shrink-0 flex flex-col">
+        <PaymentSection
+          subtotal={subtotal}
+          discountValue={discountValue}
+          discountType={discountType}
+          setDiscountValue={setDiscountValue}
+          setDiscountType={setDiscountType}
+          paymentMethod={paymentMethod}
+          setPaymentMethod={setPaymentMethod}
+          amountReceived={amountReceived}
+          setAmountReceived={setAmountReceived}
+          change={change}
+          discountAmount={discountAmount}
+          onCheckout={onCheckout}
+          loading={loading}
+          disabled={!activeShift}
+        />
+      </div>
     </div>
   );
 }
@@ -237,13 +243,6 @@ function buildHeaderProps(p: POSLayoutProps): HeaderAreaProps {
     onShiftStatus: p.onShiftStatus,
     onLogout: p.logout,
     onCashMovement: p.handleCreateCashMovement,
-    selectedClient: p.selectedClient,
-    setSelectedClient: p.setSelectedClient,
-    onNewClient: p.onNewClient,
-    products: p.products,
-    search: p.search,
-    setSearch: p.setSearch,
-    addToCart: p.addToCart,
   };
 }
 
@@ -269,6 +268,12 @@ function buildMainContentProps(p: POSLayoutProps): MainContentAreaProps {
     loading: p.loading,
     activeShift: p.activeShift,
     addToCart: p.addToCart,
+    
+    selectedClient: p.selectedClient,
+    setSelectedClient: p.setSelectedClient,
+    onNewClient: p.onNewClient,
+    search: p.search,
+    setSearch: p.setSearch,
   };
 }
 
