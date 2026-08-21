@@ -9,8 +9,10 @@ export function ProductSearch({
   disabled,
 }: ProductSearchProps) {
   const [showResults, setShowResults] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const filteredProducts = products
     .filter((p) => p.active && p.name.toLowerCase().includes(search.toLowerCase()))
@@ -25,14 +27,64 @@ export function ProductSearch({
         !resultsRef.current.contains(e.target as Node)
       ) {
         setShowResults(false);
+        setSelectedIndex(-1);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (showResults && filteredProducts.length > 0) {
+      setSelectedIndex(0);
+    } else {
+      setSelectedIndex(-1);
+    }
+  }, [showResults, filteredProducts.length]);
+
   const handleFocus = () => {
     if (search.trim()) setShowResults(true);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showResults || filteredProducts.length === 0) return;
+
+    switch (e.key) {
+      case "ArrowDown": {
+        e.preventDefault();
+        setSelectedIndex((prev) => Math.min(prev + 1, filteredProducts.length - 1));
+        break;
+      }
+      case "ArrowUp": {
+        e.preventDefault();
+        setSelectedIndex((prev) => Math.max(prev - 1, 0));
+        break;
+      }
+      case "Enter": {
+        e.preventDefault();
+        if (selectedIndex >= 0 && selectedIndex < filteredProducts.length) {
+          const product = filteredProducts[selectedIndex];
+          onAddProduct(product);
+          onSearchChange("");
+          setShowResults(false);
+          setSelectedIndex(-1);
+        }
+        break;
+      }
+      case "Escape": {
+        setShowResults(false);
+        setSelectedIndex(-1);
+        inputRef.current?.blur();
+        break;
+      }
+    }
+  };
+
+  const selectProduct = (product: typeof filteredProducts[0]) => {
+    onAddProduct(product);
+    onSearchChange("");
+    setShowResults(false);
+    setSelectedIndex(-1);
   };
 
   return (
@@ -55,36 +107,41 @@ export function ProductSearch({
             onSearchChange(e.target.value);
             setShowResults(true);
           }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && filteredProducts.length > 0) {
-              e.preventDefault();
-              onAddProduct(filteredProducts[0]);
-              onSearchChange("");
-              setShowResults(false);
-            }
-          }}
+          onKeyDown={handleKeyDown}
           onFocus={handleFocus}
           onBlur={() => setTimeout(() => setShowResults(false), 200)}
           disabled={disabled}
           className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm focus:border-primary-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-autocomplete="list"
+          aria-controls="product-search-results"
+          aria-expanded={showResults && filteredProducts.length > 0}
         />
       </div>
 
       {showResults && search && (
-        <div className="absolute top-full mt-2 left-0 right-0 bg-white rounded-xl shadow-xl border border-neutral-200 z-40 overflow-hidden">
+        <div
+          id="product-search-results"
+          className="absolute top-full mt-2 left-0 right-0 bg-white rounded-xl shadow-xl border border-neutral-200 z-40 overflow-hidden"
+          role="listbox"
+        >
           {filteredProducts.length === 0 ? (
-            <div className="px-4 py-3 text-sm text-neutral-500 text-center">No se encontraron productos</div>
+            <div className="px-4 py-3 text-sm text-neutral-500 text-center" role="option" aria-disabled="true">
+              No se encontraron productos
+            </div>
           ) : (
-            filteredProducts.map((product) => (
+            filteredProducts.map((product, index) => (
               <button
                 key={product.id}
-                onClick={() => {
-                  onAddProduct(product);
-                  onSearchChange("");
-                  setShowResults(false);
-                }}
+                ref={(el) => { itemRefs.current[index] = el; }}
+                onClick={() => selectProduct(product)}
+                onMouseEnter={() => setSelectedIndex(index)}
                 disabled={product.type === "product" && product.stock === 0}
-                className="w-full text-left px-4 py-2.5 hover:bg-primary-50 text-sm border-b border-neutral-100 last:border-0 flex items-center justify-between gap-3 disabled:opacity-40 disabled:cursor-not-allowed"
+                className={`w-full text-left px-4 py-2.5 text-sm border-b border-neutral-100 last:border-0 flex items-center justify-between gap-3 disabled:opacity-40 disabled:cursor-not-allowed ${
+                  index === selectedIndex ? "bg-primary-50 text-primary-700" : "hover:bg-primary-50"
+                }`}
+                role="option"
+                aria-selected={index === selectedIndex}
+                aria-disabled={product.type === "product" && product.stock === 0}
               >
                 <span className="font-medium text-neutral-900 truncate">{product.name}</span>
                 <span className="flex items-center gap-3 shrink-0">
