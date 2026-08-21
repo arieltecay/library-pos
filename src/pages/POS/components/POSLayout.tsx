@@ -39,6 +39,7 @@ interface POSLayoutProps {
   onCloseNewClient: () => void;
   saleSuccess: { total: number; change: number } | null;
   onCloseSaleSuccess: () => void;
+  onConfirmSaleSuccess: () => void;
   discountAmount: number;
   total: number;
   change: number;
@@ -186,10 +187,11 @@ interface FooterModalsAreaProps {
   savingClient: POSLayoutProps["savingClient"];
   saleSuccess: POSLayoutProps["saleSuccess"];
   onCloseSaleSuccess: POSLayoutProps["onCloseSaleSuccess"];
+  onConfirmSaleSuccess: POSLayoutProps["onConfirmSaleSuccess"];
 }
 
 function FooterModalsArea(props: FooterModalsAreaProps) {
-  const { shiftLoading, showOpenShift, onCloseOpenShift, handleOpenShift, showCloseShift, onCloseCloseShift, handleCloseShift, activeShift, shiftStats, showShiftStatus, onCloseShiftStatus, showNewClient, onCloseNewClient, handleCreateClient, savingClient, saleSuccess, onCloseSaleSuccess } = props;
+  const { shiftLoading, showOpenShift, onCloseOpenShift, handleOpenShift, showCloseShift, onCloseCloseShift, handleCloseShift, activeShift, shiftStats, showShiftStatus, onCloseShiftStatus, showNewClient, onCloseNewClient, handleCreateClient, savingClient, saleSuccess, onCloseSaleSuccess, onConfirmSaleSuccess } = props;
 
   return (
     <>
@@ -218,6 +220,7 @@ function FooterModalsArea(props: FooterModalsAreaProps) {
         savingClient={savingClient}
         saleSuccess={saleSuccess}
         onCloseSaleSuccess={onCloseSaleSuccess}
+        onConfirmSaleSuccess={onConfirmSaleSuccess}
       />
     </>
   );
@@ -282,6 +285,7 @@ function buildFooterModalsProps(p: POSLayoutProps): FooterModalsAreaProps {
     savingClient: p.savingClient,
     saleSuccess: p.saleSuccess,
     onCloseSaleSuccess: p.onCloseSaleSuccess,
+    onConfirmSaleSuccess: p.onConfirmSaleSuccess,
   };
 }
 

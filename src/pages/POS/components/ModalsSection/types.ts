@@ -25,4 +25,5 @@ export interface ModalsSectionProps {
 
   saleSuccess: { total: number; change: number } | null;
   onCloseSaleSuccess: () => void;
+  onConfirmSaleSuccess: () => void;
 }

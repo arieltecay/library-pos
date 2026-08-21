@@ -26,6 +26,7 @@ export function ModalsSection({
   savingClient,
   saleSuccess,
   onCloseSaleSuccess,
+  onConfirmSaleSuccess,
 }: ModalsSectionProps) {
   return (
     <>
@@ -63,6 +64,7 @@ export function ModalsSection({
       <SaleSuccessModal
         isOpen={!!saleSuccess}
         onClose={onCloseSaleSuccess}
+        onConfirm={onConfirmSaleSuccess}
         total={saleSuccess?.total || 0}
         change={saleSuccess?.change || 0}
       />

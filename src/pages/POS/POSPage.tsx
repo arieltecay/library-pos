@@ -93,6 +93,7 @@ export default function POSPage() {
       onCloseNewClient={closeNewClient}
       saleSuccess={saleSuccess}
       onCloseSaleSuccess={closeSaleSuccess}
+      onConfirmSaleSuccess={() => { closeSaleSuccess(); clearSale(); }}
       discountAmount={discountAmount}
       total={total}
       change={change}

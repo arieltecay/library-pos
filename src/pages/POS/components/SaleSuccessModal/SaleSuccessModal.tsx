@@ -1,7 +1,24 @@
+import { useEffect } from "react";
 import { Modal } from "../Modal/Modal";
 import type { SaleSuccessModalProps } from "./types";
 
-export function SaleSuccessModal({ isOpen, onClose, total, change }: SaleSuccessModalProps) {
+export function SaleSuccessModal({ isOpen, onClose, onConfirm, total, change }: SaleSuccessModalProps) {
+  useEffect(() => {
+    if (!isOpen) return;
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        onConfirm();
+      } else if (e.key === "Escape") {
+        onClose();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose, onConfirm]);
+
   return (
     <Modal title="" isOpen={isOpen} onClose={onClose} size="sm">
       <div className="text-center">
@@ -16,7 +33,7 @@ export function SaleSuccessModal({ isOpen, onClose, total, change }: SaleSuccess
           <p className="text-sm text-neutral-500">Vuelto: ${change.toLocaleString("es-AR")}</p>
         )}
         <button
-          onClick={onClose}
+          onClick={onConfirm}
           className="mt-6 w-full py-3 rounded-xl bg-primary-600 text-white font-semibold hover:bg-primary-700 transition-colors"
         >
           Continuar
