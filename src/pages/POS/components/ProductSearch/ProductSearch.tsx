@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import type { ProductSearchProps } from "./types";
 
 export function ProductSearch({
@@ -10,8 +11,8 @@ export function ProductSearch({
 }: ProductSearchProps) {
   const [showResults, setShowResults] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const resultsRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const filteredProducts = products
@@ -22,9 +23,7 @@ export function ProductSearch({
     function handleClickOutside(e: MouseEvent) {
       if (
         inputRef.current &&
-        !inputRef.current.contains(e.target as Node) &&
-        resultsRef.current &&
-        !resultsRef.current.contains(e.target as Node)
+        !inputRef.current.contains(e.target as Node)
       ) {
         setShowResults(false);
         setSelectedIndex(-1);
@@ -37,10 +36,34 @@ export function ProductSearch({
   useEffect(() => {
     if (showResults && filteredProducts.length > 0) {
       setSelectedIndex(0);
+      updateDropdownPosition();
     } else {
       setSelectedIndex(-1);
     }
   }, [showResults, filteredProducts.length]);
+
+  const updateDropdownPosition = () => {
+    if (inputRef.current) {
+      const rect = inputRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 8,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (showResults) {
+      updateDropdownPosition();
+      window.addEventListener("scroll", updateDropdownPosition);
+      window.addEventListener("resize", updateDropdownPosition);
+      return () => {
+        window.removeEventListener("scroll", updateDropdownPosition);
+        window.removeEventListener("resize", updateDropdownPosition);
+      };
+    }
+  }, [showResults]);
 
   const handleFocus = () => {
     if (search.trim()) setShowResults(true);
@@ -87,8 +110,55 @@ export function ProductSearch({
     setSelectedIndex(-1);
   };
 
+  const dropdown = showResults && search && dropdownPosition && (
+    <div
+      id="product-search-results"
+      className="bg-white rounded-xl shadow-xl border border-neutral-200 z-50 overflow-hidden"
+      style={{
+        position: "fixed",
+        top: dropdownPosition.top,
+        left: dropdownPosition.left,
+        width: dropdownPosition.width,
+        maxHeight: 320,
+        overflowY: "auto",
+      }}
+      role="listbox"
+    >
+      {filteredProducts.length === 0 ? (
+        <div className="px-4 py-3 text-sm text-neutral-500 text-center" role="option" aria-disabled="true">
+          No se encontraron productos
+        </div>
+      ) : (
+        filteredProducts.map((product, index) => (
+          <button
+            key={product.id}
+            onClick={() => selectProduct(product)}
+            onMouseEnter={() => setSelectedIndex(index)}
+            disabled={product.type === "product" && product.stock === 0}
+            className={`w-full text-left px-4 py-2.5 text-sm border-b border-neutral-100 last:border-0 flex items-center justify-between gap-3 disabled:opacity-40 disabled:cursor-not-allowed ${
+              index === selectedIndex ? "bg-primary-50 text-primary-700" : "hover:bg-primary-50"
+            }`}
+            role="option"
+            aria-selected={index === selectedIndex}
+            aria-disabled={product.type === "product" && product.stock === 0}
+          >
+            <span className="font-medium text-neutral-900 truncate">{product.name}</span>
+            <span className="flex items-center gap-3 shrink-0">
+              {product.type === "product" && (
+                <span className={`text-xs ${product.stock <= (product.minStock ?? 5) ? "text-warning-600" : "text-neutral-400"}`}>
+                  Stock: {product.stock}
+                </span>
+              )}
+              <span className="font-bold text-primary-600">${product.price.toLocaleString("es-AR")}</span>
+            </span>
+          </button>
+        ))
+      )}
+    </div>
+  );
+
   return (
-    <div className="flex-1 relative" ref={resultsRef}>
+    <div className="flex-1 relative">
       <div className="flex items-center justify-between pl-11 pr-4">
         <span className="text-xs font-semibold text-neutral-500">Buscar producto / servicio</span>
         <kbd className="text-xs bg-neutral-100 text-neutral-500 px-1.5 py-0.5 rounded border border-neutral-200">F2</kbd>
@@ -117,46 +187,7 @@ export function ProductSearch({
           aria-expanded={showResults && filteredProducts.length > 0}
         />
       </div>
-
-      {showResults && search && (
-        <div
-          id="product-search-results"
-          className="absolute top-full mt-2 left-0 right-0 bg-white rounded-xl shadow-xl border border-neutral-200 z-40 overflow-hidden"
-          role="listbox"
-        >
-          {filteredProducts.length === 0 ? (
-            <div className="px-4 py-3 text-sm text-neutral-500 text-center" role="option" aria-disabled="true">
-              No se encontraron productos
-            </div>
-          ) : (
-            filteredProducts.map((product, index) => (
-              <button
-                key={product.id}
-                ref={(el) => { itemRefs.current[index] = el; }}
-                onClick={() => selectProduct(product)}
-                onMouseEnter={() => setSelectedIndex(index)}
-                disabled={product.type === "product" && product.stock === 0}
-                className={`w-full text-left px-4 py-2.5 text-sm border-b border-neutral-100 last:border-0 flex items-center justify-between gap-3 disabled:opacity-40 disabled:cursor-not-allowed ${
-                  index === selectedIndex ? "bg-primary-50 text-primary-700" : "hover:bg-primary-50"
-                }`}
-                role="option"
-                aria-selected={index === selectedIndex}
-                aria-disabled={product.type === "product" && product.stock === 0}
-              >
-                <span className="font-medium text-neutral-900 truncate">{product.name}</span>
-                <span className="flex items-center gap-3 shrink-0">
-                  {product.type === "product" && (
-                    <span className={`text-xs ${product.stock <= (product.minStock ?? 5) ? "text-warning-600" : "text-neutral-400"}`}>
-                      Stock: {product.stock}
-                    </span>
-                  )}
-                  <span className="font-bold text-primary-600">${product.price.toLocaleString("es-AR")}</span>
-                </span>
-              </button>
-            ))
-          )}
-        </div>
-      )}
+      {dropdownPosition && createPortal(dropdown, document.body)}
     </div>
   );
 }
