@@ -15,22 +15,20 @@ interface POSLayoutProps {
   shiftLoading: boolean;
   cart: CartItem[];
   subtotal: number;
-  saleLoading: boolean;
-  clientLoading: boolean;
   discountValue: number;
-  setDiscountValue: (v: number) => void;
+  setDiscountValue: (_v: number) => void;
   discountType: "$" | "%";
-  setDiscountType: (t: "$" | "%") => void;
+  setDiscountType: (_t: "$" | "%") => void;
   paymentMethod: "cash" | "transfer" | "credit";
-  setPaymentMethod: (m: "cash" | "transfer" | "credit") => void;
+  setPaymentMethod: (_m: "cash" | "transfer" | "credit") => void;
   amountReceived: string;
-  setAmountReceived: (v: string) => void;
+  setAmountReceived: (_v: string) => void;
   search: string;
-  setSearch: (v: string) => void;
+  setSearch: (_v: string) => void;
   selectedClient: Client | null;
-  setSelectedClient: (c: Client | null) => void;
+  setSelectedClient: (_c: Client | null) => void;
   savingClient: boolean;
-  setSavingClient: (v: boolean) => void;
+  setSavingClient: (_v: boolean) => void;
   showOpenShift: boolean;
   onCloseOpenShift: () => void;
   showCloseShift: boolean;
@@ -64,75 +62,32 @@ interface POSLayoutProps {
   clearCart: () => void;
 }
 
-export function POSLayout(props: POSLayoutProps) {
-  const {
-    products,
-    activeShift,
-    shiftStats,
-    shiftLoading,
-    cart,
-    subtotal,
-    saleLoading,
-    clientLoading,
-    discountValue,
-    setDiscountValue,
-    discountType,
-    setDiscountType,
-    paymentMethod,
-    setPaymentMethod,
-    amountReceived,
-    setAmountReceived,
-    search,
-    setSearch,
-    selectedClient,
-    setSelectedClient,
-    savingClient,
-    setSavingClient,
-    showOpenShift,
-    onCloseOpenShift,
-    showCloseShift,
-    onCloseCloseShift,
-    showShiftStatus,
-    onCloseShiftStatus,
-    showNewClient,
-    onCloseNewClient,
-    saleSuccess,
-    onCloseSaleSuccess,
-    discountAmount,
-    total,
-    change,
-    anyModalOpen,
-    hasCartItems,
-    loading,
-    onOpenShift,
-    onCloseShift,
-    onShiftStatus,
-    onNewClient,
-    onCheckout,
-    clearSale,
-    logout,
-    handleOpenShift,
-    handleCloseShift,
-    handleCreateClient,
-    handleCreateCashMovement,
-    addToCart,
-    updateQuantity,
-    removeItem,
-    clearCart,
-  } = props;
+interface HeaderAreaProps {
+  activeShift: POSLayoutProps["activeShift"];
+  onCloseShift: POSLayoutProps["onCloseShift"];
+  onShiftStatus: POSLayoutProps["onShiftStatus"];
+  onLogout: POSLayoutProps["logout"];
+  onCashMovement: POSLayoutProps["handleCreateCashMovement"];
+  selectedClient: POSLayoutProps["selectedClient"];
+  setSelectedClient: POSLayoutProps["setSelectedClient"];
+  onNewClient: POSLayoutProps["onNewClient"];
+  products: POSLayoutProps["products"];
+  search: POSLayoutProps["search"];
+  setSearch: POSLayoutProps["setSearch"];
+  addToCart: POSLayoutProps["addToCart"];
+}
 
-  if (!activeShift && !showOpenShift && !loading) {
-    return <NoShiftView onOpenShift={onOpenShift} onLogout={logout} />;
-  }
+function HeaderArea(props: HeaderAreaProps) {
+  const { activeShift, onCloseShift, onShiftStatus, onLogout, onCashMovement, selectedClient, setSelectedClient, onNewClient, products, search, setSearch, addToCart } = props;
 
   return (
-    <div className="min-h-screen bg-neutral-100 flex flex-col">
+    <>
       <POSHeader
         activeShift={activeShift}
         onCloseShift={onCloseShift}
         onShiftStatus={onShiftStatus}
-        onLogout={logout}
-        onCashMovement={handleCreateCashMovement}
+        onLogout={onLogout}
+        onCashMovement={onCashMovement}
       />
 
       <div className="bg-white border-b border-neutral-200 px-6 py-4">
@@ -154,35 +109,90 @@ export function POSLayout(props: POSLayoutProps) {
           </div>
         </div>
       </div>
+    </>
+  );
+}
 
-      <div className="flex-1 flex gap-6 p-6 overflow-hidden">
-        <div className="flex-1 flex flex-col min-w-0">
-          <CartSection
-            cart={cart}
-            onUpdateQuantity={updateQuantity}
-            onRemove={removeItem}
-            onClear={clearSale}
-          />
-        </div>
+interface MainContentAreaProps {
+  cart: POSLayoutProps["cart"];
+  updateQuantity: POSLayoutProps["updateQuantity"];
+  removeItem: POSLayoutProps["removeItem"];
+  clearSale: POSLayoutProps["clearSale"];
+  subtotal: POSLayoutProps["subtotal"];
+  discountValue: POSLayoutProps["discountValue"];
+  setDiscountValue: POSLayoutProps["setDiscountValue"];
+  discountType: POSLayoutProps["discountType"];
+  setDiscountType: POSLayoutProps["setDiscountType"];
+  paymentMethod: POSLayoutProps["paymentMethod"];
+  setPaymentMethod: POSLayoutProps["setPaymentMethod"];
+  amountReceived: POSLayoutProps["amountReceived"];
+  setAmountReceived: POSLayoutProps["setAmountReceived"];
+  change: POSLayoutProps["change"];
+  discountAmount: POSLayoutProps["discountAmount"];
+  onCheckout: POSLayoutProps["onCheckout"];
+  loading: POSLayoutProps["loading"];
+  activeShift: POSLayoutProps["activeShift"];
+}
 
-        <PaymentSection
-          subtotal={subtotal}
-          discountValue={discountValue}
-          discountType={discountType}
-          setDiscountValue={setDiscountValue}
-          setDiscountType={setDiscountType}
-          paymentMethod={paymentMethod}
-          setPaymentMethod={setPaymentMethod}
-          amountReceived={amountReceived}
-          setAmountReceived={setAmountReceived}
-          change={change}
-          discountAmount={discountAmount}
-          onCheckout={onCheckout}
-          loading={loading}
-          disabled={!activeShift}
+function MainContentArea(props: MainContentAreaProps) {
+  const { cart, updateQuantity, removeItem, clearSale, subtotal, discountValue, setDiscountValue, discountType, setDiscountType, paymentMethod, setPaymentMethod, amountReceived, setAmountReceived, change, discountAmount, onCheckout, loading, activeShift } = props;
+
+  return (
+    <div className="flex-1 flex gap-6 p-6 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0">
+        <CartSection
+          cart={cart}
+          onUpdateQuantity={updateQuantity}
+          onRemove={removeItem}
+          onClear={clearSale}
         />
       </div>
 
+      <PaymentSection
+        subtotal={subtotal}
+        discountValue={discountValue}
+        discountType={discountType}
+        setDiscountValue={setDiscountValue}
+        setDiscountType={setDiscountType}
+        paymentMethod={paymentMethod}
+        setPaymentMethod={setPaymentMethod}
+        amountReceived={amountReceived}
+        setAmountReceived={setAmountReceived}
+        change={change}
+        discountAmount={discountAmount}
+        onCheckout={onCheckout}
+        loading={loading}
+        disabled={!activeShift}
+      />
+    </div>
+  );
+}
+
+interface FooterModalsAreaProps {
+  shiftLoading: POSLayoutProps["shiftLoading"];
+  showOpenShift: POSLayoutProps["showOpenShift"];
+  onCloseOpenShift: POSLayoutProps["onCloseOpenShift"];
+  handleOpenShift: POSLayoutProps["handleOpenShift"];
+  showCloseShift: POSLayoutProps["showCloseShift"];
+  onCloseCloseShift: POSLayoutProps["onCloseCloseShift"];
+  handleCloseShift: POSLayoutProps["handleCloseShift"];
+  activeShift: POSLayoutProps["activeShift"];
+  shiftStats: POSLayoutProps["shiftStats"];
+  showShiftStatus: POSLayoutProps["showShiftStatus"];
+  onCloseShiftStatus: POSLayoutProps["onCloseShiftStatus"];
+  showNewClient: POSLayoutProps["showNewClient"];
+  onCloseNewClient: POSLayoutProps["onCloseNewClient"];
+  handleCreateClient: POSLayoutProps["handleCreateClient"];
+  savingClient: POSLayoutProps["savingClient"];
+  saleSuccess: POSLayoutProps["saleSuccess"];
+  onCloseSaleSuccess: POSLayoutProps["onCloseSaleSuccess"];
+}
+
+function FooterModalsArea(props: FooterModalsAreaProps) {
+  const { shiftLoading, showOpenShift, onCloseOpenShift, handleOpenShift, showCloseShift, onCloseCloseShift, handleCloseShift, activeShift, shiftStats, showShiftStatus, onCloseShiftStatus, showNewClient, onCloseNewClient, handleCreateClient, savingClient, saleSuccess, onCloseSaleSuccess } = props;
+
+  return (
+    <>
       <footer className="pb-3 text-center text-xs text-neutral-400">
         Atajos: + incrementa último ítem, − decrementa · F2 buscar · F3 descuento · F4 monto recibido · F8 nuevo cliente · F9 cobrar · ESC anular
       </footer>
@@ -209,6 +219,82 @@ export function POSLayout(props: POSLayoutProps) {
         saleSuccess={saleSuccess}
         onCloseSaleSuccess={onCloseSaleSuccess}
       />
+    </>
+  );
+}
+
+function buildHeaderProps(p: POSLayoutProps): HeaderAreaProps {
+  return {
+    activeShift: p.activeShift,
+    onCloseShift: p.onCloseShift,
+    onShiftStatus: p.onShiftStatus,
+    onLogout: p.logout,
+    onCashMovement: p.handleCreateCashMovement,
+    selectedClient: p.selectedClient,
+    setSelectedClient: p.setSelectedClient,
+    onNewClient: p.onNewClient,
+    products: p.products,
+    search: p.search,
+    setSearch: p.setSearch,
+    addToCart: p.addToCart,
+  };
+}
+
+function buildMainContentProps(p: POSLayoutProps): MainContentAreaProps {
+  return {
+    cart: p.cart,
+    updateQuantity: p.updateQuantity,
+    removeItem: p.removeItem,
+    clearSale: p.clearSale,
+    subtotal: p.subtotal,
+    discountValue: p.discountValue,
+    setDiscountValue: p.setDiscountValue,
+    discountType: p.discountType,
+    setDiscountType: p.setDiscountType,
+    paymentMethod: p.paymentMethod,
+    setPaymentMethod: p.setPaymentMethod,
+    amountReceived: p.amountReceived,
+    setAmountReceived: p.setAmountReceived,
+    change: p.change,
+    discountAmount: p.discountAmount,
+    onCheckout: p.onCheckout,
+    loading: p.loading,
+    activeShift: p.activeShift,
+  };
+}
+
+function buildFooterModalsProps(p: POSLayoutProps): FooterModalsAreaProps {
+  return {
+    shiftLoading: p.shiftLoading,
+    showOpenShift: p.showOpenShift,
+    onCloseOpenShift: p.onCloseOpenShift,
+    handleOpenShift: p.handleOpenShift,
+    showCloseShift: p.showCloseShift,
+    onCloseCloseShift: p.onCloseCloseShift,
+    handleCloseShift: p.handleCloseShift,
+    activeShift: p.activeShift,
+    shiftStats: p.shiftStats,
+    showShiftStatus: p.showShiftStatus,
+    onCloseShiftStatus: p.onCloseShiftStatus,
+    showNewClient: p.showNewClient,
+    onCloseNewClient: p.onCloseNewClient,
+    handleCreateClient: p.handleCreateClient,
+    savingClient: p.savingClient,
+    saleSuccess: p.saleSuccess,
+    onCloseSaleSuccess: p.onCloseSaleSuccess,
+  };
+}
+
+export function POSLayout(props: POSLayoutProps) {
+  if (!props.activeShift && !props.showOpenShift && !props.loading) {
+    return <NoShiftView onOpenShift={props.onOpenShift} onLogout={props.logout} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-neutral-100 flex flex-col">
+      <HeaderArea {...buildHeaderProps(props)} />
+      <MainContentArea {...buildMainContentProps(props)} />
+      <FooterModalsArea {...buildFooterModalsProps(props)} />
     </div>
   );
 }

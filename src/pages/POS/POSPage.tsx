@@ -71,8 +71,6 @@ export default function POSPage() {
       shiftLoading={shiftLoading}
       cart={cart}
       subtotal={subtotal}
-      saleLoading={saleLoading}
-      clientLoading={clientLoading}
       discountValue={discountValue}
       setDiscountValue={setDiscountValue}
       discountType={discountType}
