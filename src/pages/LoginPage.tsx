@@ -21,7 +21,13 @@ function PinInput({ pin, onChange, onKeyDown, loading, autoFocusIndex = 0 }: {
           inputMode="numeric"
           maxLength={1}
           value={pin[index]}
-          onChange={(e) => onChange(index, e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            onChange(index, value);
+            if (value && index < 3) {
+              inputsRef.current[index + 1]?.focus();
+            }
+          }}
           onKeyDown={(e) => onKeyDown(index, e)}
           disabled={loading}
           autoFocus={index === autoFocusIndex}
@@ -79,17 +85,13 @@ export default function LoginPage() {
     newPin[index] = value;
     setPin(newPin);
 
-    if (value && index < 3) {
-      // Focus handled by PinInput via autoFocus
-    }
-
     if (newPin.every((d) => d !== "") && index === 3) {
       setTimeout(() => handleSubmit(), 100);
     }
   }
 
   function handleKeyDown(_index: number, _e: KeyboardEvent<HTMLInputElement>) {
-    // Focus handled by PinInput
+    // Backspace handling could be added here if needed
   }
 
   return (
