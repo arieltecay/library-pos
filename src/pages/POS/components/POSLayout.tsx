@@ -1,6 +1,7 @@
 import { POSHeader } from "@/pages/POS/components/POSHeader/POSHeader.tsx";
 import { ClientSection } from "@/pages/POS/components/ClientSection/ClientSection.tsx";
-import { ProductSection } from "@/pages/POS/components/ProductSection/ProductSection.tsx";
+import { ProductSearch } from "@/pages/POS/components/ProductSearch/ProductSearch.tsx";
+import { QuickProducts } from "@/pages/POS/components/QuickProducts/QuickProducts.tsx";
 import { CartSection } from "@/pages/POS/components/CartSection/CartSection.tsx";
 import { PaymentSection } from "@/pages/POS/components/PaymentSection/PaymentSection.tsx";
 import { ModalsSection } from "@/pages/POS/components/ModalsSection/ModalsSection.tsx";
@@ -100,7 +101,7 @@ function HeaderArea(props: HeaderAreaProps) {
           />
 
           <div className="flex-1 relative">
-            <ProductSection
+            <ProductSearch
               products={products}
               search={search}
               onSearchChange={setSearch}
@@ -115,6 +116,7 @@ function HeaderArea(props: HeaderAreaProps) {
 }
 
 interface MainContentAreaProps {
+  products: POSLayoutProps["products"];
   cart: POSLayoutProps["cart"];
   updateQuantity: POSLayoutProps["updateQuantity"];
   removeItem: POSLayoutProps["removeItem"];
@@ -133,14 +135,16 @@ interface MainContentAreaProps {
   onCheckout: POSLayoutProps["onCheckout"];
   loading: POSLayoutProps["loading"];
   activeShift: POSLayoutProps["activeShift"];
+  addToCart: POSLayoutProps["addToCart"];
 }
 
 function MainContentArea(props: MainContentAreaProps) {
-  const { cart, updateQuantity, removeItem, clearSale, subtotal, discountValue, setDiscountValue, discountType, setDiscountType, paymentMethod, setPaymentMethod, amountReceived, setAmountReceived, change, discountAmount, onCheckout, loading, activeShift } = props;
+  const { products, cart, updateQuantity, removeItem, clearSale, subtotal, discountValue, setDiscountValue, discountType, setDiscountType, paymentMethod, setPaymentMethod, amountReceived, setAmountReceived, change, discountAmount, onCheckout, loading, activeShift, addToCart } = props;
 
   return (
     <div className="flex-1 flex gap-6 p-6 overflow-hidden">
       <div className="flex-1 flex flex-col min-w-0">
+        <QuickProducts products={products} onAddProduct={addToCart} />
         <CartSection
           cart={cart}
           onUpdateQuantity={updateQuantity}
@@ -245,6 +249,7 @@ function buildHeaderProps(p: POSLayoutProps): HeaderAreaProps {
 
 function buildMainContentProps(p: POSLayoutProps): MainContentAreaProps {
   return {
+    products: p.products,
     cart: p.cart,
     updateQuantity: p.updateQuantity,
     removeItem: p.removeItem,
@@ -263,6 +268,7 @@ function buildMainContentProps(p: POSLayoutProps): MainContentAreaProps {
     onCheckout: p.onCheckout,
     loading: p.loading,
     activeShift: p.activeShift,
+    addToCart: p.addToCart,
   };
 }
 
