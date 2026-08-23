@@ -6,7 +6,7 @@ interface AuthContextValue {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  loginPin: (_pin: string) => Promise<void>;
+  loginPin: (_pin: string, _schoolId: string) => Promise<void>;
   loginEmail: (_email: string, _password: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
@@ -33,8 +33,8 @@ export function AuthProvider({ children, authService: injectedService = authServ
     setLoading(false);
   }, [injectedService]);
 
-  async function loginPin(pin: string) {
-    const loggedInUser = await injectedService.loginPin(pin);
+  async function loginPin(pin: string, schoolId: string) {
+    const loggedInUser = await injectedService.loginPin(pin, schoolId);
     setUser(loggedInUser);
   }
 

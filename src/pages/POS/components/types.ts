@@ -38,7 +38,7 @@ export interface User {
   id: string;
   name: string;
   email?: string;
-  role: "admin" | "seller";
+  role: "superadmin" | "admin" | "seller";
   schoolId: string;
   posId?: string;
   active?: boolean;

@@ -29,7 +29,7 @@ function clearStoredAuth(): void {
 export interface AuthService {
   getStoredUser: () => User | null;
   getAccessToken: () => string | null;
-  loginPin: (_pin: string) => Promise<User>;
+  loginPin: (_pin: string, _schoolId: string) => Promise<User>;
   loginEmail: (_email: string, _password: string) => Promise<User>;
   logout: () => void;
 }
@@ -38,8 +38,8 @@ export function createAuthService(): AuthService {
   return {
     getStoredUser: () => getStoredAuth()?.user ?? null,
     getAccessToken: () => getStoredAuth()?.token ?? null,
-    loginPin: async (pin: string) => {
-      const res = await loginWithPin(pin);
+    loginPin: async (pin: string, schoolId: string) => {
+      const res = await loginWithPin(pin, schoolId);
       setStoredAuth(res.user, res.accessToken, res.refreshToken);
       return res.user;
     },

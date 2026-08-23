@@ -72,7 +72,7 @@ describe('useAuth', () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     await act(async () => {
-      await result.current.loginPin('1234');
+      await result.current.loginPin('1234', 'school-1');
     });
 
     expect(result.current.user).toEqual(mockUser);
@@ -103,7 +103,7 @@ describe('useAuth', () => {
 
     await expect(
       act(async () => {
-        await result.current.loginPin('wrong');
+        await result.current.loginPin('wrong', 'school-1');
       })
     ).rejects.toThrow('PIN incorrecto');
 
@@ -117,7 +117,7 @@ describe('useAuth', () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     await act(async () => {
-      await result.current.loginPin('1234');
+      await result.current.loginPin('1234', 'school-1');
     });
 
     expect(result.current.isAuthenticated).toBe(true);
@@ -140,7 +140,7 @@ describe('useAuth', () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     await act(async () => {
-      await result.current.loginPin('1234');
+      await result.current.loginPin('1234', 'school-1');
     });
 
     expect(result.current.isAdmin).toBe(true);

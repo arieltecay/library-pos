@@ -1,6 +1,14 @@
-import { useState, useRef, type KeyboardEvent } from "react";
+import { useState, useRef, useEffect, type KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import api from "../api/client";
+
+interface School {
+  id: string;
+  name: string;
+  code: string;
+  active: boolean;
+}
 
 function PinInput({ pin, onChange, onKeyDown, loading, autoFocusIndex = 0 }: {
   pin: string[];
@@ -57,22 +65,40 @@ function SubmitButton({ loading, disabled, children }: {
 export default function LoginPage() {
   const { loginPin } = useAuth();
   const navigate = useNavigate();
+  const [schools, setSchools] = useState<School[]>([]);
+  const [selectedSchoolId, setSelectedSchoolId] = useState("");
   const [pin, setPin] = useState(["", "", "", ""]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingSchools, setLoadingSchools] = useState(true);
+
+  useEffect(() => {
+    fetchSchools();
+  }, []);
+
+  const fetchSchools = async () => {
+    try {
+      const { data } = await api.get<{ items: School[] }>("/schools?active=true");
+      setSchools(data.items);
+    } catch {
+      setError("Error al cargar los negocios");
+    } finally {
+      setLoadingSchools(false);
+    }
+  };
 
   async function handleSubmit(e?: React.FormEvent) {
     e?.preventDefault();
     const fullPin = pin.join("");
-    if (fullPin.length !== 4) return;
+    if (fullPin.length !== 4 || !selectedSchoolId) return;
 
     setLoading(true);
     setError("");
     try {
-      await loginPin(fullPin);
+      await loginPin(fullPin, selectedSchoolId);
       navigate("/");
     } catch {
-      setError("PIN incorrecto");
+      setError("PIN incorrecto para el negocio seleccionado");
       setPin(["", "", "", ""]);
     } finally {
       setLoading(false);
@@ -94,6 +120,8 @@ export default function LoginPage() {
     // Backspace handling could be added here if needed
   }
 
+  const pinDisabled = !selectedSchoolId || loading;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-900">
       <div className="w-full max-w-sm mx-auto px-6">
@@ -104,13 +132,43 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Library System</h1>
-          <p className="text-neutral-400">Ingrese su PIN para continuar</p>
+          <p className="text-neutral-400">Seleccione su negocio e ingrese su PIN</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <PinInput pin={pin} onChange={handleChange} onKeyDown={handleKeyDown} loading={loading} />
-          {error && <p className="text-center text-danger-500 text-sm font-medium">{error}</p>}
-          <SubmitButton loading={loading} disabled={pin.join("").length !== 4}>Ingresar</SubmitButton>
+          <div>
+            <label className="block text-sm font-medium text-neutral-300 mb-2">Negocio</label>
+            {loadingSchools ? (
+              <div className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-xl text-neutral-400">
+                Cargando negocios...
+              </div>
+            ) : (
+              <select
+                value={selectedSchoolId}
+                onChange={(e) => setSelectedSchoolId(e.target.value)}
+                className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-xl text-white focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                disabled={loading}
+              >
+                <option value="">Seleccionar negocio...</option>
+                {schools.map((school) => (
+                  <option key={school.id} value={school.id}>
+                    {school.name} ({school.code})
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {!selectedSchoolId && (
+            <p className="text-center text-neutral-500 text-sm">Seleccione un negocio para continuar</p>
+          )}
+
+          {selectedSchoolId && (
+            <PinInput pin={pin} onChange={handleChange} onKeyDown={handleKeyDown} loading={pinDisabled} />
+          )}
+
+          {error && <p className="text-center text-red-500 text-sm font-medium">{error}</p>}
+          <SubmitButton loading={loading} disabled={pinDisabled || pin.join("").length !== 4}>Ingresar</SubmitButton>
         </form>
       </div>
     </div>

@@ -3,7 +3,7 @@ import api from "./client";
 export interface AuthUser {
   id: string;
   name: string;
-  role: "admin" | "seller";
+  role: "superadmin" | "admin" | "seller";
   schoolId: string;
   posId?: string;
 }
@@ -14,8 +14,8 @@ export interface AuthResponse {
   user: AuthUser;
 }
 
-export async function loginWithPin(pin: string): Promise<AuthResponse> {
-  const { data } = await api.post<AuthResponse>("/auth/login-pin", { pin });
+export async function loginWithPin(pin: string, schoolId: string): Promise<AuthResponse> {
+  const { data } = await api.post<AuthResponse>("/auth/login-pin", { pin, schoolId });
   return data;
 }
 
