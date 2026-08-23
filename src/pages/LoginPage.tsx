@@ -78,7 +78,7 @@ export default function LoginPage() {
 
   const fetchSchools = async () => {
     try {
-      const { data } = await api.get<{ items: School[] }>("/schools?active=true");
+      const { data } = await api.get<{ items: School[] }>("/schools/public");
       setSchools(data.items);
     } catch {
       setError("Error al cargar los negocios");
