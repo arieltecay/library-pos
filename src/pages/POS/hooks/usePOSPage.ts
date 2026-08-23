@@ -19,22 +19,22 @@ export function usePOSPage() {
   const { logout } = useAuth();
   const { success: showSuccess, error: showError } = useToast();
 
+  // UI State - search must be declared before useProducts
+  const [search, setSearch] = useState("");
+  const [discountValue, setDiscountValue] = useState(0);
+  const [discountType, setDiscountType] = useState<"$" | "%">("$");
+  const [paymentMethod, setPaymentMethod] = useState<"cash" | "transfer" | "credit">("cash");
+  const [amountReceived, setAmountReceived] = useState("");
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [savingClient, setSavingClient] = useState(false);
+
   // Core hooks
-  const { products, refetch: refetchProducts } = useProducts(100);
+  const { products, refetch: refetchProducts } = useProducts(100, search);
   const { activeShift, shiftStats, openShift, closeShift, loading: shiftLoading, refetch: refetchShift } = useShift();
   const { cart, addToCart, updateQuantity, removeItem, clearCart, subtotal } = useCart(products);
   const { checkout, loading: saleLoading } = useSale();
   const { createClient, loading: clientLoading } = useClient();
   const { aggregated: aggregatedMovements, createMovement: handleCreateCashMovement } = useCashMovements(activeShift?.id ?? null);
-
-  // UI State
-  const [discountValue, setDiscountValue] = useState(0);
-  const [discountType, setDiscountType] = useState<"$" | "%">("$");
-  const [paymentMethod, setPaymentMethod] = useState<"cash" | "transfer" | "credit">("cash");
-  const [amountReceived, setAmountReceived] = useState("");
-  const [search, setSearch] = useState("");
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [savingClient, setSavingClient] = useState(false);
 
   // Modals
   const modals = useModals();
