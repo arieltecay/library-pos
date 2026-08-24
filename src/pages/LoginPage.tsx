@@ -1,14 +1,9 @@
 import { useState, useRef, useEffect, type KeyboardEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import api from "../api/client";
+import { getPublicSchoolBySlug } from "../api/schools";
 
-interface School {
-  id: string;
-  name: string;
-  code: string;
-  active: boolean;
-}
+type LoginState = "resolving" | "notFound" | "ready" | "invalidUrl";
 
 function PinInput({ pin, onChange, onKeyDown, loading, autoFocusIndex = 0 }: {
   pin: string[];
@@ -65,40 +60,58 @@ function SubmitButton({ loading, disabled, children }: {
 export default function LoginPage() {
   const { loginPin } = useAuth();
   const navigate = useNavigate();
-  const [schools, setSchools] = useState<School[]>([]);
-  const [selectedSchoolId, setSelectedSchoolId] = useState("");
+  const [searchParams] = useSearchParams();
+
   const [pin, setPin] = useState(["", "", "", ""]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loadingSchools, setLoadingSchools] = useState(true);
+  const [state, setState] = useState<LoginState>("resolving");
+  const [schoolId, setSchoolId] = useState("");
+  const [schoolName, setSchoolName] = useState("");
 
   useEffect(() => {
-    fetchSchools();
-  }, []);
-
-  const fetchSchools = async () => {
-    try {
-      const { data } = await api.get<{ items: School[] }>("/schools/public");
-      setSchools(data.items);
-    } catch {
-      setError("Error al cargar los negocios");
-    } finally {
-      setLoadingSchools(false);
+    const slug = searchParams.get("pos_app");
+    if (!slug) {
+      setState("invalidUrl");
+      return;
     }
-  };
+
+    let cancelled = false;
+
+    async function resolveSchool(slugValue: string) {
+      try {
+        const school = await getPublicSchoolBySlug(slugValue);
+        if (!cancelled) {
+          setSchoolId(school.id);
+          setSchoolName(school.name);
+          setState("ready");
+        }
+      } catch {
+        if (!cancelled) {
+          setState("notFound");
+        }
+      }
+    }
+
+    resolveSchool(slug);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParams]);
 
   async function handleSubmit(e?: React.FormEvent) {
     e?.preventDefault();
     const fullPin = pin.join("");
-    if (fullPin.length !== 4 || !selectedSchoolId) return;
+    if (fullPin.length !== 4 || !schoolId) return;
 
     setLoading(true);
     setError("");
     try {
-      await loginPin(fullPin, selectedSchoolId);
+      await loginPin(fullPin, schoolId);
       navigate("/");
     } catch {
-      setError("PIN incorrecto para el negocio seleccionado");
+      setError("PIN incorrecto para este negocio");
       setPin(["", "", "", ""]);
     } finally {
       setLoading(false);
@@ -120,7 +133,52 @@ export default function LoginPage() {
     // Backspace handling could be added here if needed
   }
 
-  const pinDisabled = !selectedSchoolId || loading;
+  const pinDisabled = loading;
+
+  const renderState = () => {
+    switch (state) {
+      case "resolving":
+        return (
+          <div className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-xl text-neutral-400 text-center">
+            Cargando negocio...
+          </div>
+        );
+      case "invalidUrl":
+        return (
+          <div className="space-y-4 text-center">
+            <div className="w-full px-4 py-3 bg-red-900/30 border border-red-700 rounded-xl text-red-400">
+              URL inválida
+            </div>
+            <p className="text-neutral-400 text-sm">
+              Acceda al POS usando una URL con el parámetro <code className="px-1.5 py-0.5 bg-neutral-800 rounded text-primary-400 font-mono text-xs">?pos_app=slug-del-negocio</code>
+            </p>
+            <p className="text-neutral-500 text-xs">Ejemplo: <code className="font-mono">/login?pos_app=libreria</code></p>
+          </div>
+        );
+      case "notFound":
+        return (
+          <div className="space-y-4 text-center">
+            <div className="w-full px-4 py-3 bg-red-900/30 border border-red-700 rounded-xl text-red-400">
+              Negocio no válido
+            </div>
+            <p className="text-neutral-400 text-sm">
+              No se encontró un negocio activo con el slug proporcionado.
+            </p>
+          </div>
+        );
+      case "ready":
+        return (
+          <>
+            <p className="text-center text-neutral-300 mb-6">
+              Ingrese su PIN · <strong className="text-white">{schoolName}</strong>
+            </p>
+            <PinInput pin={pin} onChange={handleChange} onKeyDown={handleKeyDown} loading={pinDisabled} />
+            {error && <p className="text-center text-red-500 text-sm font-medium">{error}</p>}
+            <SubmitButton loading={loading} disabled={pin.join("").length !== 4}>Ingresar</SubmitButton>
+          </>
+        );
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-900">
@@ -132,43 +190,10 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Library System</h1>
-          <p className="text-neutral-400">Seleccione su negocio e ingrese su PIN</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-neutral-300 mb-2">Negocio</label>
-            {loadingSchools ? (
-              <div className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-xl text-neutral-400">
-                Cargando negocios...
-              </div>
-            ) : (
-              <select
-                value={selectedSchoolId}
-                onChange={(e) => setSelectedSchoolId(e.target.value)}
-                className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-xl text-white focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
-                disabled={loading}
-              >
-                <option value="">Seleccionar negocio...</option>
-                {schools.map((school) => (
-                  <option key={school.id} value={school.id}>
-                    {school.name} ({school.code})
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
-
-          {!selectedSchoolId && (
-            <p className="text-center text-neutral-500 text-sm">Seleccione un negocio para continuar</p>
-          )}
-
-          {selectedSchoolId && (
-            <PinInput pin={pin} onChange={handleChange} onKeyDown={handleKeyDown} loading={pinDisabled} />
-          )}
-
-          {error && <p className="text-center text-red-500 text-sm font-medium">{error}</p>}
-          <SubmitButton loading={loading} disabled={pinDisabled || pin.join("").length !== 4}>Ingresar</SubmitButton>
+          {renderState()}
         </form>
       </div>
     </div>
