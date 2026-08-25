@@ -16,6 +16,7 @@ export function PaymentSection({
   onCheckout,
   loading,
   disabled,
+  operation,
 }: PaymentSectionProps) {
   return (
     <PaymentPanel
@@ -33,6 +34,7 @@ export function PaymentSection({
       onCheckout={onCheckout}
       loading={loading}
       disabled={disabled}
+      operation={operation}
     />
   );
 }

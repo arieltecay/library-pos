@@ -4,6 +4,7 @@ import { useCashMovements } from "../../hooks/useCashMovements";
 import type { POSHeaderProps } from "./types";
 import { CashMovementModal } from "../CashMovementModal";
 import type { CashMovementFormData } from "../CashMovementModal/types";
+import { OperationSelector } from "../OperationSelector/OperationSelector.tsx";
 
 export function POSHeader({
   activeShift,
@@ -11,6 +12,8 @@ export function POSHeader({
   onShiftStatus,
   onLogout,
   onCashMovement,
+  operation,
+  setOperation,
 }: POSHeaderProps) {
   const { user } = useAuth();
   const { aggregated, loading } = useCashMovements(
@@ -54,6 +57,7 @@ export function POSHeader({
         </div>
 
         <div className="flex items-center gap-2">
+          <OperationSelector operation={operation} onChange={setOperation} />
           <button
             onClick={onShiftStatus}
             className="px-4 py-2 rounded-lg bg-white border border-neutral-300 text-neutral-700 text-sm font-medium hover:bg-neutral-50 transition-colors"

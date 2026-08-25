@@ -3,6 +3,9 @@ import { POSLayout } from "./components/POSLayout";
 
 export default function POSPage() {
   const {
+    // Operation mode
+    operation,
+    setOperation,
     // Core hooks data
     products,
     activeShift,
@@ -36,6 +39,8 @@ export default function POSPage() {
     showShiftStatus,
     showNewClient,
     saleSuccess,
+    showReceipt,
+    receiptData,
     closeOpenShift,
     closeCloseShift,
     closeShiftStatus,
@@ -54,11 +59,16 @@ export default function POSPage() {
     loading,
     // Actions
     handleCheckout,
+    handleCheckoutQuote,
+    handleCheckoutReturn,
     handleOpenShift,
     handleCloseShift,
     handleCreateClient,
     clearSale,
     logout,
+    // Receipt
+    onCloseReceipt,
+    onConfirmReceipt,
   } = usePOSPage();
 
   return (
@@ -105,6 +115,8 @@ export default function POSPage() {
       onShiftStatus={openShiftStatus}
       onNewClient={openNewClient}
       onCheckout={handleCheckout}
+      handleCheckoutQuote={handleCheckoutQuote}
+      handleCheckoutReturn={handleCheckoutReturn}
       clearSale={clearSale}
       logout={logout}
       handleOpenShift={handleOpenShift}
@@ -115,6 +127,12 @@ export default function POSPage() {
       updateQuantity={updateQuantity}
       removeItem={removeItem}
       clearCart={clearCart}
+      operation={operation}
+      setOperation={setOperation}
+      showReceipt={showReceipt}
+      receiptData={receiptData}
+      onCloseReceipt={onCloseReceipt}
+      onConfirmReceipt={onConfirmReceipt}
     />
   );
 }

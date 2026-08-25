@@ -1,4 +1,5 @@
 import type { CashMovementAggregated } from "../CashMovementModal/types";
+import type { ReceiptData } from "../Receipt/types";
 
 export interface ModalsSectionProps {
   showOpenShift: boolean;
@@ -26,4 +27,9 @@ export interface ModalsSectionProps {
   saleSuccess: { total: number; change: number } | null;
   onCloseSaleSuccess: () => void;
   onConfirmSaleSuccess: () => void;
+
+  showReceipt: boolean;
+  receiptData: ReceiptData | null;
+  onCloseReceipt: () => void;
+  onConfirmReceipt: () => void;
 }

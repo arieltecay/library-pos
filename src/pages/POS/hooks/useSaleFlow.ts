@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import type { CartItem } from "../components/Cart/types";
 import type { Client } from "../components/types";
 import type { CashMovementAggregated } from "../components/CashMovementModal/types";
+import type { SaleLean } from "./types";
 
 export interface SaleFlowDeps {
   activeShift: { id: string } | null;
@@ -18,13 +19,34 @@ export interface SaleFlowDeps {
     discount: number;
     paymentMethod: "cash" | "transfer" | "credit";
     amountReceived: number;
-  }) => Promise<{ total: number; change: number }>;
+  }) => Promise<{ total: number; change: number; sale: SaleLean }>;
   clearCart: () => void;
   refetchProducts: () => Promise<void>;
   refetchShift: () => Promise<void>;
   showError: (msg: string) => void;
   showSuccess: (msg: string) => void;
-  openSaleSuccess: (total: number, change: number) => void;
+  openReceipt: (data: {
+    number: number;
+    type: "sale" | "quote" | "return";
+    items: Array<{
+      product: string;
+      name: string;
+      type: "product" | "service";
+      quantity: number;
+      unitPrice: number;
+      unitCost?: number;
+      subtotal: number;
+    }>;
+    subtotal: number;
+    discount: number;
+    total: number;
+    paymentMethod?: "cash" | "transfer" | "credit";
+    amountReceived?: number;
+    change?: number;
+    client?: { id: string; fullName: string; balance: number } | null;
+    seller: { id: string; name: string; role: string };
+    createdAt: string;
+  }) => void;
 }
 
 export function useSaleFlow(deps: SaleFlowDeps) {
@@ -43,7 +65,7 @@ export function useSaleFlow(deps: SaleFlowDeps) {
     refetchShift,
     showError,
     showSuccess,
-    openSaleSuccess,
+    openReceipt,
   } = deps;
 
   const handleCheckout = useCallback(async () => {
@@ -70,7 +92,7 @@ export function useSaleFlow(deps: SaleFlowDeps) {
         quantity: item.quantity,
       }));
 
-      const { total: saleTotal, change: saleChange } = await checkout({
+      const { total: saleTotal, change: saleChange, sale } = await checkout({
         items,
         clientId: selectedClient?.id,
         discount: discountAmount,
@@ -78,7 +100,23 @@ export function useSaleFlow(deps: SaleFlowDeps) {
         amountReceived: (paymentMethod === "cash" || paymentMethod === "transfer") ? parseFloat(amountReceived) || total : total,
       });
 
-      openSaleSuccess(saleTotal, saleChange);
+      // Build receipt data for sale
+      const receiptData = {
+        number: sale.number,
+        type: "sale" as const,
+        items: sale.items,
+        subtotal: sale.subtotal,
+        discount: sale.discount,
+        total: sale.total,
+        paymentMethod: sale.paymentMethod,
+        amountReceived: sale.amountReceived,
+        change: sale.change,
+        client: sale.client ?? null,
+        seller: sale.seller,
+        createdAt: sale.createdAt,
+      };
+
+      openReceipt(receiptData);
       clearCart();
       await refetchProducts();
       await refetchShift();
@@ -100,7 +138,7 @@ export function useSaleFlow(deps: SaleFlowDeps) {
     refetchShift,
     showError,
     showSuccess,
-    openSaleSuccess,
+    openReceipt,
   ]);
 
   return { handleCheckout };

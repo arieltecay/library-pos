@@ -3,6 +3,7 @@ import { CloseShiftModal } from "@/pages/POS/components/CloseShiftModal/CloseShi
 import { ShiftStatusModal } from "@/pages/POS/components/ShiftStatusModal/ShiftStatusModal.tsx";
 import { NewClientModal } from "@/pages/POS/components/NewClientModal/NewClientModal.tsx";
 import { SaleSuccessModal } from "@/pages/POS/components/SaleSuccessModal/SaleSuccessModal.tsx";
+import { ReceiptModal } from "@/pages/POS/components/Receipt/ReceiptModal.tsx";
 import type { ModalsSectionProps } from "./types";
 
 export function ModalsSection({
@@ -27,6 +28,10 @@ export function ModalsSection({
   saleSuccess,
   onCloseSaleSuccess,
   onConfirmSaleSuccess,
+  showReceipt,
+  receiptData,
+  onCloseReceipt,
+  onConfirmReceipt,
 }: ModalsSectionProps) {
   return (
     <>
@@ -67,6 +72,13 @@ export function ModalsSection({
         onConfirm={onConfirmSaleSuccess}
         total={saleSuccess?.total || 0}
         change={saleSuccess?.change || 0}
+      />
+
+      <ReceiptModal
+        isOpen={showReceipt}
+        onClose={onCloseReceipt}
+        onConfirm={onConfirmReceipt}
+        receipt={receiptData!}
       />
     </>
   );

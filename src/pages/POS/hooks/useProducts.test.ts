@@ -24,7 +24,7 @@ describe('useProducts', () => {
 
     expect(result.current.products).toEqual(mockProducts);
     expect(result.current.error).toBeNull();
-    expect(api.get).toHaveBeenCalledWith('/products', { params: { limit: 100 } });
+    expect(api.get).toHaveBeenCalledWith('/products', { params: { limit: 100, search: '' } });
   });
 
   it('should handle fetch error', async () => {
@@ -75,6 +75,6 @@ describe('useProducts', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    expect(api.get).toHaveBeenCalledWith('/products', { params: { limit: 100 } });
+    expect(api.get).toHaveBeenCalledWith('/products', { params: { limit: 100, search: '' } });
   });
 });

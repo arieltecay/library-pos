@@ -1,3 +1,5 @@
+import type { OperationMode } from "../../hooks/types";
+
 export interface PaymentPanelProps {
   subtotal: number;
   discountValue: number;
@@ -13,4 +15,5 @@ export interface PaymentPanelProps {
   onCheckout: () => void;
   loading: boolean;
   disabled?: boolean;
+  operation: OperationMode;
 }

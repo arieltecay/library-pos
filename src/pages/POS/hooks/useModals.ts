@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import type { ReceiptData } from "./types";
 
 export interface ModalsState {
   showOpenShift: boolean;
@@ -6,6 +7,8 @@ export interface ModalsState {
   showShiftStatus: boolean;
   showNewClient: boolean;
   saleSuccess: { total: number; change: number } | null;
+  showReceipt: boolean;
+  receiptData: ReceiptData | null;
 }
 
 export interface ModalsActions {
@@ -19,6 +22,8 @@ export interface ModalsActions {
   closeNewClient: () => void;
   openSaleSuccess: (total: number, change: number) => void;
   closeSaleSuccess: () => void;
+  openReceipt: (data: ReceiptData) => void;
+  closeReceipt: () => void;
   closeAll: () => void;
 }
 
@@ -28,6 +33,8 @@ export function useModals(): ModalsState & ModalsActions {
   const [showShiftStatus, setShowShiftStatus] = useState(false);
   const [showNewClient, setShowNewClient] = useState(false);
   const [saleSuccess, setSaleSuccess] = useState<ModalsState["saleSuccess"]>(null);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
 
   const openOpenShift = useCallback(() => setShowOpenShift(true), []);
   const closeOpenShift = useCallback(() => setShowOpenShift(false), []);
@@ -39,6 +46,14 @@ export function useModals(): ModalsState & ModalsActions {
   const closeNewClient = useCallback(() => setShowNewClient(false), []);
   const openSaleSuccess = useCallback((total: number, change: number) => setSaleSuccess({ total, change }), []);
   const closeSaleSuccess = useCallback(() => setSaleSuccess(null), []);
+  const openReceipt = useCallback((data: ReceiptData) => {
+    setReceiptData(data);
+    setShowReceipt(true);
+  }, []);
+  const closeReceipt = useCallback(() => {
+    setShowReceipt(false);
+    setReceiptData(null);
+  }, []);
 
   const closeAll = useCallback(() => {
     setShowOpenShift(false);
@@ -46,6 +61,8 @@ export function useModals(): ModalsState & ModalsActions {
     setShowShiftStatus(false);
     setShowNewClient(false);
     setSaleSuccess(null);
+    setShowReceipt(false);
+    setReceiptData(null);
   }, []);
 
   return {
@@ -54,6 +71,8 @@ export function useModals(): ModalsState & ModalsActions {
     showShiftStatus,
     showNewClient,
     saleSuccess,
+    showReceipt,
+    receiptData,
     openOpenShift,
     closeOpenShift,
     openCloseShift,
@@ -64,6 +83,8 @@ export function useModals(): ModalsState & ModalsActions {
     closeNewClient,
     openSaleSuccess,
     closeSaleSuccess,
+    openReceipt,
+    closeReceipt,
     closeAll,
   };
 }

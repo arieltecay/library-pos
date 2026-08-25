@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import api from "../../../api/client";
-import type { UseSaleResult } from "./types";
+import type { UseSaleResult, SaleLean } from "./types";
 
 export function useSale(): UseSaleResult {
   const [loading, setLoading] = useState(false);
@@ -26,7 +26,7 @@ export function useSale(): UseSaleResult {
             ? params.amountReceived
             : undefined,
       });
-      return { total: data.sale.total, change: data.sale.change };
+      return { total: data.sale.total, change: data.sale.change, sale: data.sale as SaleLean };
     } catch (err: any) {
       const message = err.response?.data?.message || "Error al procesar la venta";
       setError(message);
