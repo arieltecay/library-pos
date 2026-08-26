@@ -1,5 +1,6 @@
 import type { CashMovementAggregated } from "../CashMovementModal/types";
 import type { ReceiptData } from "../Receipt/types";
+import type { ShiftAggregated } from "../types";
 
 export interface ModalsSectionProps {
   showOpenShift: boolean;
@@ -17,7 +18,7 @@ export interface ModalsSectionProps {
   showShiftStatus: boolean;
   onCloseShiftStatus: () => void;
   activeShiftForStatus: { openingAmount: number; openedAt: string; id: string } | null;
-  shiftStatsForStatus: { cashTotal?: number; transferTotal?: number; creditTotal?: number; salesCount?: number; productsSold?: number; avgTicket?: number; expectedCash?: number } | null;
+  shiftStatsForStatus: ShiftAggregated | null;
 
   showNewClient: boolean;
   onCloseNewClient: () => void;

@@ -13,7 +13,7 @@ export function ProductSearch({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const filteredProducts = products
     .filter((p) => p.active && p.name.toLowerCase().includes(search.toLowerCase()))
@@ -21,10 +21,10 @@ export function ProductSearch({
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (
-        inputRef.current &&
-        !inputRef.current.contains(e.target as Node)
-      ) {
+      const target = e.target as Node;
+      const clickedOnInput = inputRef.current?.contains(target) ?? false;
+      const clickedOnDropdown = dropdownRef.current?.contains(target) ?? false;
+      if (!clickedOnInput && !clickedOnDropdown) {
         setShowResults(false);
         setSelectedIndex(-1);
       }
@@ -112,6 +112,7 @@ export function ProductSearch({
 
   const dropdown = showResults && search && dropdownPosition && (
     <div
+      ref={dropdownRef}
       id="product-search-results"
       className="bg-white rounded-xl shadow-xl border border-neutral-200 z-50 overflow-hidden"
       style={{

@@ -3,7 +3,7 @@ import { useAuth } from "../../../../hooks/useAuth";
 import { useCashMovements } from "../../hooks/useCashMovements";
 import type { POSHeaderProps } from "./types";
 import { CashMovementModal } from "../CashMovementModal";
-import type { CashMovementFormData } from "../CashMovementModal/types";
+import type { CashMovementFormData, CashMovementSubmitData } from "../CashMovementModal/types";
 import { OperationSelector } from "../OperationSelector/OperationSelector.tsx";
 
 export function POSHeader({
@@ -91,7 +91,7 @@ export function POSHeader({
       <CashMovementModal
         isOpen={movementsOpen}
         onClose={() => setMovementsOpen(false)}
-        onSubmit={async (data: CashMovementFormData) => {
+        onSubmit={async (data: CashMovementSubmitData) => {
           await onCashMovement(data);
           setMovementsOpen(false);
         }}

@@ -23,6 +23,13 @@ export interface CashMovementAggregated {
 export interface CashMovementFormData {
   type: CashMovementType;
   category: CashMovementCategory;
+  amount: string;
+  description: string;
+}
+
+export interface CashMovementSubmitData {
+  type: CashMovementType;
+  category: CashMovementCategory;
   amount: number;
   description: string;
 }
@@ -30,7 +37,7 @@ export interface CashMovementFormData {
 export interface CashMovementModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: CashMovementFormData) => Promise<void>;
+  onSubmit: (data: CashMovementSubmitData) => Promise<void>;
   loading: boolean;
 }
 

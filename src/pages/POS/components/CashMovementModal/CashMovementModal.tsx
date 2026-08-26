@@ -1,7 +1,6 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { Modal } from '../Modal/Modal';
-import type { CashMovementModalProps, CashMovementFormData, CashMovementCategory } from './types';
-import { CASH_MOVEMENT_CATEGORIES } from './types';
+import { CASH_MOVEMENT_CATEGORIES, type CashMovementModalProps, type CashMovementFormData, type CashMovementCategory } from './types';
 
 const TYPE_OPTIONS = [
   { value: 'out', label: 'Salida (Gasto)', color: 'danger' },
@@ -17,14 +16,14 @@ export function CashMovementModal({
   const [formData, setFormData] = useState<CashMovementFormData>({
     type: 'out',
     category: 'lunch',
-    amount: 0,
+    amount: '',
     description: '',
   });
   const [errors, setErrors] = useState<Partial<Record<keyof CashMovementFormData, string>>>({});
 
   useEffect(() => {
     if (isOpen) {
-      setFormData({ type: 'out', category: 'lunch', amount: 0, description: '' });
+      setFormData({ type: 'out', category: 'lunch', amount: '', description: '' });
       setErrors({});
     }
   }, [isOpen]);
@@ -32,7 +31,8 @@ export function CashMovementModal({
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof CashMovementFormData, string>> = {};
 
-    if (formData.amount <= 0) {
+    const amountValue = parseFloat(formData.amount);
+    if (isNaN(amountValue) || amountValue <= 0) {
       newErrors.amount = 'El monto debe ser mayor a 0';
     }
     if (!formData.description.trim() || formData.description.trim().length < 3) {
@@ -46,7 +46,8 @@ export function CashMovementModal({
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!validate()) return;
-    onSubmit(formData);
+    const amountValue = parseFloat(formData.amount);
+    onSubmit({ ...formData, amount: amountValue });
   }
 
   return (
@@ -92,12 +93,11 @@ export function CashMovementModal({
           <span className="text-sm font-medium text-neutral-700">Monto</span>
           <input
             type="number"
-            step="0.01"
-            min="0.01"
             value={formData.amount}
-            onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })}
+            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
             className={`px-3 py-2 rounded-lg border ${errors.amount ? 'border-danger-500' : 'border-neutral-200'} focus:border-primary-500 focus:outline-none`}
-            placeholder="0.00"
+            placeholder="Ingrese monto"
+            inputMode="decimal"
           />
           {errors.amount && <span className="text-xs text-danger-600">{errors.amount}</span>}
         </label>

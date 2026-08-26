@@ -60,13 +60,21 @@ export interface CashShift {
 }
 
 export interface ShiftAggregated {
-  cashTotal: number;
-  transferTotal: number;
-  creditTotal: number;
-  salesCount: number;
-  productsSold: number;
-  avgTicket: number;
-  expectedCash: number;
+  cashTotal?: number;
+  transferTotal?: number;
+  creditTotal?: number;
+  salesCount?: number;
+  productsSold?: number;
+  avgTicket?: number;
+  expectedCash?: number;
+  returnsTotal?: number;
+  returnsCashTotal?: number;
+  returnsTransferTotal?: number;
+  returnsCreditTotal?: number;
+  cashInTotal?: number;
+  cashOutTotal?: number;
+  netMovements?: number;
+  movementsCount?: number;
 }
 
 export interface SaleItem {

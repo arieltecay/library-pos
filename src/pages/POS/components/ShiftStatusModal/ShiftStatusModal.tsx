@@ -60,17 +60,65 @@ export function ShiftStatusModal({
               <span className="font-semibold">{shiftStats.salesCount ?? 0}</span>
             </div>
             <div className="flex justify-between text-sm py-1.5 border-b border-neutral-100">
-              <span className="text-neutral-500">Efectivo</span>
+              <span className="text-neutral-500">Efectivo (ventas)</span>
               <span className="font-semibold">{formatCurrency(shiftStats.cashTotal)}</span>
             </div>
             <div className="flex justify-between text-sm py-1.5 border-b border-neutral-100">
-              <span className="text-neutral-500">Transferencias</span>
+              <span className="text-neutral-500">Transferencias (ventas)</span>
               <span className="font-semibold">{formatCurrency(shiftStats.transferTotal)}</span>
             </div>
             <div className="flex justify-between text-sm py-1.5 border-b border-neutral-100">
-              <span className="text-neutral-500">Crédito</span>
+              <span className="text-neutral-500">Crédito (ventas)</span>
               <span className="font-semibold">{formatCurrency(shiftStats.creditTotal)}</span>
             </div>
+            {(shiftStats.returnsTotal ?? 0) > 0 && (
+              <>
+                <div className="flex justify-between text-sm py-1.5 border-b border-neutral-100 text-warning-600">
+                  <span className="text-neutral-500">Devoluciones (total)</span>
+                  <span className="font-semibold">{formatCurrency(shiftStats.returnsTotal)}</span>
+                </div>
+                {(shiftStats.returnsCashTotal ?? 0) > 0 && (
+                  <div className="flex justify-between text-sm py-1.5 border-b border-neutral-100 text-warning-600">
+                    <span className="text-neutral-500">  ↳ Devoluciones en efectivo</span>
+                    <span className="font-semibold">{formatCurrency(shiftStats.returnsCashTotal)}</span>
+                  </div>
+                )}
+                {(shiftStats.returnsTransferTotal ?? 0) > 0 && (
+                  <div className="flex justify-between text-sm py-1.5 border-b border-neutral-100 text-warning-600">
+                    <span className="text-neutral-500">  ↳ Devoluciones en transferencia</span>
+                    <span className="font-semibold">{formatCurrency(shiftStats.returnsTransferTotal)}</span>
+                  </div>
+                )}
+                {(shiftStats.returnsCreditTotal ?? 0) > 0 && (
+                  <div className="flex justify-between text-sm py-1.5 border-b border-neutral-100 text-warning-600">
+                    <span className="text-neutral-500">  ↳ Devoluciones en crédito</span>
+                    <span className="font-semibold">{formatCurrency(shiftStats.returnsCreditTotal)}</span>
+                  </div>
+                )}
+              </>
+            )}
+            {(shiftStats.cashInTotal ?? 0) > 0 || (shiftStats.cashOutTotal ?? 0) > 0 ? (
+              <>
+                {(shiftStats.cashInTotal ?? 0) > 0 && (
+                  <div className="flex justify-between text-sm py-1.5 border-b border-neutral-100 text-primary-600">
+                    <span className="text-neutral-500">Entradas de caja</span>
+                    <span className="font-semibold">+{formatCurrency(shiftStats.cashInTotal)}</span>
+                  </div>
+                )}
+                {(shiftStats.cashOutTotal ?? 0) > 0 && (
+                  <div className="flex justify-between text-sm py-1.5 border-b border-neutral-100 text-danger-600">
+                    <span className="text-neutral-500">Salidas de caja</span>
+                    <span className="font-semibold">−{formatCurrency(shiftStats.cashOutTotal)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm py-1.5 border-b border-neutral-100">
+                  <span className="text-neutral-500">Neto movimientos</span>
+                  <span className={`font-semibold ${(shiftStats.netMovements ?? 0) >= 0 ? 'text-primary-600' : 'text-danger-600'}`}>
+                    {(shiftStats.netMovements ?? 0) >= 0 ? '+' : ''}{formatCurrency(shiftStats.netMovements)}
+                  </span>
+                </div>
+              </>
+            ) : null}
             <div className="flex justify-between text-sm py-1.5">
               <span className="text-neutral-500">Efectivo esperado en caja</span>
               <span className="font-bold text-primary-600">{formatCurrency(shiftStats.expectedCash)}</span>
