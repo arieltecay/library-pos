@@ -5,8 +5,8 @@ import { QuickProducts } from "@/pages/POS/components/QuickProducts/QuickProduct
 import { CartSection } from "@/pages/POS/components/CartSection/CartSection.tsx";
 import { PaymentSection } from "@/pages/POS/components/PaymentSection/PaymentSection.tsx";
 import { ModalsSection } from "@/pages/POS/components/ModalsSection/ModalsSection.tsx";
-import { OperationSelector } from "@/pages/POS/components/OperationSelector/OperationSelector.tsx";
 import { NoShiftView } from "@/pages/POS/components/NoShiftView/NoShiftView.tsx";
+import { POSSkeleton } from "@/components/Skeleton";
 import type { Client, Product, CartItem } from "@/pages/POS/components/types.ts";
 import type { CashMovementAggregated, CashMovementType, CashMovementCategory } from "@/pages/POS/components/CashMovementModal/types.ts";
 import type { OperationMode, ReceiptData } from "@/pages/POS/hooks/types";
@@ -352,7 +352,11 @@ function buildFooterModalsProps(p: POSLayoutProps): FooterModalsAreaProps {
 }
 
 export function POSLayout(props: POSLayoutProps) {
-  if (!props.activeShift && !props.showOpenShift && !props.loading) {
+  if (props.shiftLoading) {
+    return <POSSkeleton variant="full" />;
+  }
+
+  if (!props.activeShift && !props.showOpenShift) {
     return <NoShiftView onOpenShift={props.onOpenShift} onLogout={props.logout} />;
   }
 
