@@ -38,7 +38,7 @@ export function usePOSPage() {
   const { products, refetch: refetchProducts } = useProducts(100, search);
   const { activeShift, shiftStats, openShift, closeShift, loading: shiftLoading, refetch: refetchShift } = useShift();
   const { cart, addToCart, updateQuantity, removeItem, clearCart, subtotal } = useCart(products);
-  const { checkout, loading: saleLoading } = useSale();
+  const { checkout, previewSale, loading: saleLoading } = useSale();
   const { createClient, loading: clientLoading } = useClient();
   const { aggregated: aggregatedMovements, createMovement: handleCreateCashMovement } = useCashMovements(activeShift?.id ?? null);
   const { createQuote, loading: quoteLoading } = useQuotes();
@@ -168,6 +168,7 @@ export function usePOSPage() {
     subtotal,
     total,
     checkout,
+    previewSale,
     clearCart,
     refetchProducts,
     refetchShift,

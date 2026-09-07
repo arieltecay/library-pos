@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import type { CartItem } from "../components/Cart/types";
 import type { Client } from "../components/types";
 import type { CashMovementAggregated } from "../components/CashMovementModal/types";
-import type { SaleLean } from "./types";
+import type { SaleLean, PreviewSaleResult } from "./types";
 
 export interface SaleFlowDeps {
   activeShift: { id: string } | null;
@@ -20,6 +20,13 @@ export interface SaleFlowDeps {
     paymentMethod: "cash" | "transfer" | "credit";
     amountReceived: number;
   }) => Promise<{ total: number; change: number; sale: SaleLean }>;
+  previewSale: (params: {
+    items: { product: string; quantity: number }[];
+    clientId?: string;
+    discount: number;
+    paymentMethod: "cash" | "transfer" | "credit";
+    amountReceived?: number;
+  }) => Promise<PreviewSaleResult>;
   clearCart: () => void;
   refetchProducts: () => Promise<void>;
   refetchShift: () => Promise<void>;
@@ -60,6 +67,7 @@ export function useSaleFlow(deps: SaleFlowDeps) {
     subtotal,
     total,
     checkout,
+    previewSale,
     clearCart,
     refetchProducts,
     refetchShift,
@@ -92,12 +100,22 @@ export function useSaleFlow(deps: SaleFlowDeps) {
         quantity: item.quantity,
       }));
 
+      // Validate stock on server before processing sale
+      const amountReceivedNum = (paymentMethod === "cash" || paymentMethod === "transfer") ? parseFloat(amountReceived) || total : total;
+      await previewSale({
+        items,
+        clientId: selectedClient?.id,
+        discount: discountAmount,
+        paymentMethod,
+        amountReceived: amountReceivedNum,
+      });
+
       const { total: saleTotal, change: saleChange, sale } = await checkout({
         items,
         clientId: selectedClient?.id,
         discount: discountAmount,
         paymentMethod,
-        amountReceived: (paymentMethod === "cash" || paymentMethod === "transfer") ? parseFloat(amountReceived) || total : total,
+        amountReceived: amountReceivedNum,
       });
 
       // Build receipt data for sale
@@ -133,6 +151,7 @@ export function useSaleFlow(deps: SaleFlowDeps) {
     amountReceived,
     total,
     checkout,
+    previewSale,
     clearCart,
     refetchProducts,
     refetchShift,

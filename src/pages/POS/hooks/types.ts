@@ -4,6 +4,28 @@ import type { CartItem, SaleItem } from "../components/Cart/types";
 
 export type OperationMode = "sale" | "quote" | "return";
 
+export interface PreviewSaleItem {
+  product: string;
+  name: string;
+  type: "product" | "service";
+  quantity: number;
+  unitPrice: number;
+  unitCost?: number;
+  subtotal: number;
+  availableStock?: number;
+}
+
+export interface PreviewSaleResult {
+  items: PreviewSaleItem[];
+  subtotal: number;
+  discount: number;
+  total: number;
+  amountReceived?: number;
+  change?: number;
+  paymentMethod: "cash" | "transfer" | "credit";
+  creditBalanceAfter?: number;
+}
+
 export interface ReceiptData {
   number: number;
   type: "sale" | "quote" | "return";
@@ -69,6 +91,13 @@ export interface UseSaleResult {
     paymentMethod: "cash" | "transfer" | "credit";
     amountReceived: number;
   }) => Promise<{ total: number; change: number; sale: SaleLean }>;
+  previewSale: (params: {
+    items: { product: string; quantity: number }[];
+    clientId?: string;
+    discount: number;
+    paymentMethod: "cash" | "transfer" | "credit";
+    amountReceived?: number;
+  }) => Promise<PreviewSaleResult>;
   loading: boolean;
   error: string | null;
 }

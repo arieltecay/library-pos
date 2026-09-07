@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import api from "../../../api/client";
-import type { UseSaleResult, SaleLean } from "./types";
+import type { UseSaleResult, SaleLean, PreviewSaleResult } from "./types";
 
 export function useSale(): UseSaleResult {
   const [loading, setLoading] = useState(false);
@@ -36,5 +36,32 @@ export function useSale(): UseSaleResult {
     }
   }, []);
 
-  return { checkout, loading, error };
+  const previewSale = useCallback(async (params: {
+    items: { product: string; quantity: number }[];
+    clientId?: string;
+    discount: number;
+    paymentMethod: "cash" | "transfer" | "credit";
+    amountReceived?: number;
+  }): Promise<PreviewSaleResult> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data } = await api.post("/sales/preview", {
+        items: params.items,
+        clientId: params.clientId,
+        discount: params.discount,
+        paymentMethod: params.paymentMethod,
+        amountReceived: params.amountReceived,
+      });
+      return data as PreviewSaleResult;
+    } catch (err: any) {
+      const message = err.response?.data?.message || "Error al validar la venta";
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { checkout, previewSale, loading, error };
 }
