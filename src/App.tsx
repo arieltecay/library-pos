@@ -1,12 +1,16 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
+import { authService } from "./hooks/authService";
 import LoginPage from "./pages/LoginPage";
 import POSPage from "./pages/POS";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth();
   if (loading) return null;
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!isAuthenticated) {
+    const slug = authService.getPosAppSlug();
+    return <Navigate to={slug ? `/login?pos_app=${encodeURIComponent(slug)}` : "/login"} replace />;
+  }
   return <>{children}</>;
 }
 

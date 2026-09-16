@@ -5,6 +5,7 @@ const STORAGE_KEYS = {
   ACCESS_TOKEN: "accessToken",
   REFRESH_TOKEN: "refreshToken",
   USER: "user",
+  POS_APP_SLUG: "posAppSlug",
 } as const;
 
 function getStoredAuth(): { user: User; token: string } | null {
@@ -20,6 +21,14 @@ function setStoredAuth(user: User, accessToken: string, refreshToken: string): v
   localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
 }
 
+function setPosAppSlug(slug: string): void {
+  localStorage.setItem(STORAGE_KEYS.POS_APP_SLUG, slug);
+}
+
+function getPosAppSlug(): string | null {
+  return localStorage.getItem(STORAGE_KEYS.POS_APP_SLUG);
+}
+
 function clearStoredAuth(): void {
   localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
   localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
@@ -29,6 +38,8 @@ function clearStoredAuth(): void {
 export interface AuthService {
   getStoredUser: () => User | null;
   getAccessToken: () => string | null;
+  setPosAppSlug: (slug: string) => void;
+  getPosAppSlug: () => string | null;
   loginPin: (_pin: string, _schoolId: string) => Promise<User>;
   loginEmail: (_email: string, _password: string) => Promise<User>;
   logout: () => void;
@@ -38,6 +49,8 @@ export function createAuthService(): AuthService {
   return {
     getStoredUser: () => getStoredAuth()?.user ?? null,
     getAccessToken: () => getStoredAuth()?.token ?? null,
+    setPosAppSlug,
+    getPosAppSlug,
     loginPin: async (pin: string, schoolId: string) => {
       const res = await loginWithPin(pin, schoolId);
       setStoredAuth(res.user, res.accessToken, res.refreshToken);

@@ -111,7 +111,7 @@ describe('useAuth', () => {
     expect(result.current.isAuthenticated).toBe(false);
   });
 
-  it('should logout and clear storage', async () => {
+  it('should logout and clear storage but keep pos app slug', async () => {
     vi.mocked(loginWithPin).mockResolvedValue(mockAuthResponse);
 
     const { result } = renderHook(() => useAuth(), { wrapper });
@@ -119,6 +119,8 @@ describe('useAuth', () => {
     await act(async () => {
       await result.current.loginPin('1234', 'school-1');
     });
+
+    localStorage.setItem('posAppSlug', 'menta-dev');
 
     expect(result.current.isAuthenticated).toBe(true);
 
@@ -131,6 +133,7 @@ describe('useAuth', () => {
     expect(localStorage.getItem('accessToken')).toBeNull();
     expect(localStorage.getItem('refreshToken')).toBeNull();
     expect(localStorage.getItem('user')).toBeNull();
+    expect(localStorage.getItem('posAppSlug')).toBe('menta-dev');
   });
 
   it('should detect admin role', async () => {

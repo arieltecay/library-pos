@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, type KeyboardEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { authService } from "../hooks/authService";
 import { getPublicSchoolBySlug } from "../api/schools";
 
 type LoginState = "resolving" | "notFound" | "ready" | "invalidUrl";
@@ -61,6 +62,7 @@ export default function LoginPage() {
   const { loginPin } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const slug = searchParams.get("pos_app");
 
   const [pin, setPin] = useState(["", "", "", ""]);
   const [error, setError] = useState("");
@@ -70,11 +72,7 @@ export default function LoginPage() {
   const [schoolName, setSchoolName] = useState("");
 
   useEffect(() => {
-    const slug = searchParams.get("pos_app");
-    if (!slug) {
-      setState("invalidUrl");
-      return;
-    }
+    if (!slug) return;
 
     let cancelled = false;
 
@@ -98,7 +96,7 @@ export default function LoginPage() {
     return () => {
       cancelled = true;
     };
-  }, [searchParams]);
+  }, [slug]);
 
   async function handleSubmit(e?: React.FormEvent) {
     e?.preventDefault();
@@ -109,6 +107,7 @@ export default function LoginPage() {
     setError("");
     try {
       await loginPin(fullPin, schoolId);
+      if (slug) authService.setPosAppSlug(slug);
       navigate("/");
     } catch {
       setError("PIN incorrecto para este negocio");
@@ -134,9 +133,10 @@ export default function LoginPage() {
   }
 
   const pinDisabled = loading;
+  const effectiveState: LoginState = !slug ? "invalidUrl" : state;
 
   const renderState = () => {
-    switch (state) {
+    switch (effectiveState) {
       case "resolving":
         return (
           <div className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-xl text-neutral-400 text-center">
